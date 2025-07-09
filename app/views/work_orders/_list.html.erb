@@ -1,0 +1,189 @@
+<div id="work_orders_list" data-controller="mobile">
+  <% if work_orders.any? %>
+    <!-- Desktop Table View -->
+    <div class="d-none d-md-block">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">Cliente</th>
+              <th scope="col">Veículo</th>
+              <th scope="col">Status</th>
+              <th scope="col">Departamento</th>
+              <th scope="col">Total</th>
+              <th scope="col">Criado em</th>
+              <th scope="col" class="text-center">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% work_orders.each do |work_order| %>
+              <tr id="work_order_<%= work_order.id %>" data-id="<%= work_order.id %>" data-type="work_order">
+                <td><strong>#<%= work_order.id %></strong></td>
+                <td>
+                  <%= link_to work_order.customer.name, customer_path(work_order.customer), 
+                      class: "text-decoration-none" %>
+                </td>
+                <td>
+                  <% if work_order.vehicle %>
+                    <%= link_to "#{work_order.vehicle.license_plate} - #{work_order.vehicle.vehicle_brand.name} #{work_order.vehicle.vehicle_model.name}", 
+                        vehicle_path(work_order.vehicle), class: "text-decoration-none" %>
+                  <% else %>
+                    <span class="text-muted">-</span>
+                  <% end %>
+                </td>
+                <td id="work_order_status_<%= work_order.id %>">
+                  <%= render "work_orders/status_badge", work_order: work_order %>
+                </td>
+                <td>
+                  <% if work_order.department %>
+                    <span class="badge bg-info"><%= work_order.department.name %></span>
+                  <% else %>
+                    <span class="text-muted">-</span>
+                  <% end %>
+                </td>
+                <td>
+                  <strong>R$ <%= number_with_delimiter(work_order.total_price_cents / 100.0, delimiter: '.', separator: ',') %></strong>
+                </td>
+                <td>
+                  <%= work_order.created_at.strftime("%d/%m/%Y") %>
+                </td>
+                <td class="text-center">
+                  <div class="btn-group" role="group">
+                    <%= link_to work_order_path(work_order), class: "btn btn-sm btn-outline-info", title: "Ver" do %>
+                      <i class="fas fa-eye"></i>
+                    <% end %>
+                    <%= link_to edit_work_order_path(work_order), class: "btn btn-sm btn-outline-primary", title: "Editar" do %>
+                      <i class="fas fa-edit"></i>
+                    <% end %>
+                    <% if work_order.status == 'pending' %>
+                      <%= link_to start_work_order_path(work_order), method: :patch, 
+                          confirm: "Iniciar esta ordem de serviço?", 
+                          class: "btn btn-sm btn-outline-success", title: "Iniciar" do %>
+                        <i class="fas fa-play"></i>
+                      <% end %>
+                    <% elsif work_order.status == 'in_progress' %>
+                      <%= link_to complete_work_order_path(work_order), method: :patch, 
+                          confirm: "Concluir esta ordem de serviço?", 
+                          class: "btn btn-sm btn-outline-success", title: "Concluir" do %>
+                        <i class="fas fa-check"></i>
+                      <% end %>
+                    <% end %>
+                    <%= link_to work_order_path(work_order), method: :delete, 
+                        confirm: "Tem certeza que deseja excluir esta ordem de serviço?", 
+                        class: "btn btn-sm btn-outline-danger", title: "Excluir" do %>
+                      <i class="fas fa-trash"></i>
+                    <% end %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Mobile Card View -->
+    <div class="d-md-none">
+      <% work_orders.each do |work_order| %>
+        <div class="card mb-3" id="work_order_<%= work_order.id %>" data-id="<%= work_order.id %>" data-type="work_order" data-mobile-target="card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <h6 class="card-title mb-0">
+                <strong>#<%= work_order.id %></strong>
+              </h6>
+              <div id="work_order_status_<%= work_order.id %>">
+                <%= render "work_orders/status_badge", work_order: work_order %>
+              </div>
+            </div>
+            
+            <div class="mb-2">
+              <small class="text-muted">Cliente:</small>
+              <div>
+                <%= link_to work_order.customer.name, customer_path(work_order.customer), 
+                    class: "text-decoration-none fw-bold" %>
+              </div>
+            </div>
+            
+            <% if work_order.vehicle %>
+              <div class="mb-2">
+                <small class="text-muted">Veículo:</small>
+                <div>
+                  <%= link_to "#{work_order.vehicle.license_plate} - #{work_order.vehicle.vehicle_brand.name} #{work_order.vehicle.vehicle_model.name}", 
+                      vehicle_path(work_order.vehicle), class: "text-decoration-none" %>
+                </div>
+              </div>
+            <% end %>
+            
+            <% if work_order.department %>
+              <div class="mb-2">
+                <small class="text-muted">Departamento:</small>
+                <div>
+                  <span class="badge bg-info"><%= work_order.department.name %></span>
+                </div>
+              </div>
+            <% end %>
+            
+            <div class="mb-3">
+              <small class="text-muted">Total:</small>
+              <div class="fs-5 fw-bold text-primary">
+                R$ <%= number_with_delimiter(work_order.total_price_cents / 100.0, delimiter: '.', separator: ',') %>
+              </div>
+            </div>
+            
+            <div class="d-flex justify-content-between align-items-center">
+              <small class="text-muted">
+                <%= work_order.created_at.strftime("%d/%m/%Y") %>
+              </small>
+              <div class="btn-group" role="group">
+                <%= link_to work_order_path(work_order), class: "btn btn-sm btn-outline-info", title: "Ver" do %>
+                  <i class="fas fa-eye"></i>
+                <% end %>
+                <%= link_to edit_work_order_path(work_order), class: "btn btn-sm btn-outline-primary", title: "Editar" do %>
+                  <i class="fas fa-edit"></i>
+                <% end %>
+                <% if work_order.status == 'pending' %>
+                  <%= link_to start_work_order_path(work_order), method: :patch, 
+                      confirm: "Iniciar esta ordem de serviço?", 
+                      class: "btn btn-sm btn-outline-success", title: "Iniciar" do %>
+                    <i class="fas fa-play"></i>
+                  <% end %>
+                <% elsif work_order.status == 'in_progress' %>
+                  <%= link_to complete_work_order_path(work_order), method: :patch, 
+                      confirm: "Concluir esta ordem de serviço?", 
+                      class: "btn btn-sm btn-outline-success", title: "Concluir" do %>
+                    <i class="fas fa-check"></i>
+                  <% end %>
+                <% end %>
+                <%= link_to work_order_path(work_order), method: :delete, 
+                    confirm: "Tem certeza que deseja excluir esta ordem de serviço?", 
+                    class: "btn btn-sm btn-outline-danger", title: "Excluir" do %>
+                  <i class="fas fa-trash"></i>
+                <% end %>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Quick Actions for Swipe -->
+          <div class="quick-actions">
+            <%= link_to edit_work_order_path(work_order), class: "btn btn-light btn-sm" do %>
+              <i class="fas fa-edit"></i>
+            <% end %>
+            <%= link_to work_order_path(work_order), method: :delete, 
+                confirm: "Tem certeza que deseja excluir esta ordem de serviço?", 
+                class: "btn btn-danger btn-sm" do %>
+              <i class="fas fa-trash"></i>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="text-center py-5">
+      <i class="fas fa-tools fa-3x text-muted mb-3"></i>
+      <h5 class="text-muted">Nenhuma ordem de serviço cadastrada</h5>
+      <p class="text-muted">Clique no botão "Nova Ordem de Serviço" para adicionar a primeira ordem.</p>
+      <%= link_to "Nova Ordem de Serviço", new_work_order_path, class: "btn btn-primary" %>
+    </div>
+  <% end %>
+</div> 

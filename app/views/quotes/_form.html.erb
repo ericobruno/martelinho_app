@@ -1,0 +1,443 @@
+<!-- Form Container -->
+<div class="card">
+  <div class="card-body" data-controller="quote-form" 
+       data-quote-form-current-step-value="1" 
+       data-quote-form-total-steps-value="4">
+    
+    <%= form_with model: quote, local: true, id: "quote-form", class: "needs-validation", novalidate: true do |form| %>
+      
+      <!-- Hidden field to track selected customer for new vehicle creation -->
+      <input type="hidden" name="quote[customer_id]" id="selected_customer_id" value="">
+      
+      <!-- Step 1: Customer Information -->
+      <div class="form-step active" data-quote-form-target="step">
+        <h4 class="mb-4">
+          <i class="fas fa-user me-2"></i>
+          Informações do Cliente
+        </h4>
+        
+        <div class="row mb-3">
+          <div class="col-12">
+            <div class="form-check form-switch mb-3">
+              <input class="form-check-input" type="checkbox" id="existing-customer-toggle" 
+                     data-action="change->quote-form#toggleCustomer">
+              <label class="form-check-label" for="existing-customer-toggle">
+                <strong>Cliente Existente</strong>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Existing Customer Selection -->
+        <div id="existing-customer-section" style="display: none;">
+          <div class="row mb-3">
+            <div class="col-12">
+              <label for="customer_select" class="form-label required">
+                <i class="fas fa-search me-1"></i>
+                Buscar Cliente
+              </label>
+              <select class="form-select" id="customer_select" name="quote[customer_id]">
+                <option value="">Digite para buscar cliente...</option>
+                <% @customers.each do |customer| %>
+                  <option value="<%= customer.id %>">
+                    <%= customer.name %> - <%= customer.cpf_cnpj %>
+                  </option>
+                <% end %>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- New Customer Form -->
+        <div id="new-customer-section">
+          <div class="row mb-3">
+            <div class="col-md-8">
+              <label for="customer_name" class="form-label required">
+                <i class="fas fa-user me-1"></i>
+                Nome Completo
+              </label>
+              <input type="text" class="form-control" id="customer_name" 
+                     name="quote[vehicle_attributes][customer_attributes][name]" required data-required="true">
+              <div class="invalid-feedback">Por favor, informe o nome do cliente.</div>
+            </div>
+            <div class="col-md-4">
+              <label for="customer_document" class="form-label required">
+                <i class="fas fa-id-card me-1"></i>
+                CPF/CNPJ
+              </label>
+              <input type="text" class="form-control" id="customer_document" 
+                     name="quote[vehicle_attributes][customer_attributes][cpf_cnpj]" required data-required="true">
+              <div class="invalid-feedback">Por favor, informe um CPF ou CNPJ válido.</div>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="customer_email" class="form-label">
+                <i class="fas fa-envelope me-1"></i>
+                E-mail
+              </label>
+              <input type="email" class="form-control" id="customer_email" 
+                     name="quote[vehicle_attributes][customer_attributes][email]">
+              <div class="invalid-feedback">Por favor, informe um e-mail válido.</div>
+            </div>
+            <div class="col-md-6">
+              <label for="customer_phone" class="form-label required">
+                <i class="fas fa-phone me-1"></i>
+                Telefone
+              </label>
+              <input type="text" class="form-control" id="customer_phone" 
+                     name="quote[vehicle_attributes][customer_attributes][phone]" required data-required="true">
+              <div class="invalid-feedback">Por favor, informe o telefone.</div>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-12">
+              <label for="customer_address" class="form-label">
+                <i class="fas fa-map-marker-alt me-1"></i>
+                Endereço
+              </label>
+              <textarea class="form-control" id="customer_address" 
+                        name="quote[vehicle_attributes][customer_attributes][address]" rows="2"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end">
+          <button type="button" class="btn btn-primary btn-lg" 
+                  data-action="click->quote-form#nextStep">
+            Próximo: Veículo
+            <i class="fas fa-arrow-right ms-2"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 2: Vehicle Information -->
+      <div class="form-step d-none" data-quote-form-target="step">
+        <h4 class="mb-4">
+          <i class="fas fa-car me-2"></i>
+          Informações do Veículo
+        </h4>
+
+        <div class="row mb-3">
+          <div class="col-12">
+            <div class="form-check form-switch mb-3">
+              <input class="form-check-input" type="checkbox" id="existing-vehicle-toggle" 
+                     data-action="change->quote-form#toggleVehicle">
+              <label class="form-check-label" for="existing-vehicle-toggle">
+                <strong>Veículo Existente</strong>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Existing Vehicle Selection -->
+        <div id="existing-vehicle-section" style="display: none;">
+          <div class="row mb-3">
+            <div class="col-12">
+              <label for="vehicle_select" class="form-label required">
+                <i class="fas fa-search me-1"></i>
+                Buscar Veículo
+              </label>
+              <select class="form-select" id="vehicle_select" name="quote[vehicle_id]">
+                <option value="">Digite para buscar veículo (placa, marca, modelo)...</option>
+                <% if defined?(@vehicles) && @vehicles.present? %>
+                  <% @vehicles.each do |vehicle| %>
+                    <option value="<%= vehicle.id %>">
+                      <%= vehicle.license_plate %> - <%= vehicle.vehicle_brand.name %> <%= vehicle.vehicle_model.name %> (<%= vehicle.year %>)
+                    </option>
+                  <% end %>
+                <% end %>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- New Vehicle Form -->
+        <div id="new-vehicle-section">
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="vehicle_license_plate" class="form-label required">
+                <i class="fas fa-car me-1"></i>
+                Placa do Veículo
+              </label>
+              <input type="text" class="form-control" id="vehicle_license_plate" 
+                     name="quote[vehicle_attributes][license_plate]" 
+                     placeholder="ABC-1234 ou ABC1234" required data-required="true">
+              <div class="invalid-feedback">Por favor, informe a placa do veículo.</div>
+            </div>
+            <div class="col-md-6">
+              <label for="vehicle_year" class="form-label">
+                <i class="fas fa-calendar me-1"></i>
+                Ano
+              </label>
+              <input type="number" class="form-control" id="vehicle_year" 
+                     name="quote[vehicle_attributes][year]" 
+                     min="1900" max="2030">
+              <div class="invalid-feedback">Por favor, informe o ano do veículo.</div>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-12">
+              <label for="quote_vehicle_attributes_vehicle_brand_id" class="form-label required">
+                Marca do Veículo
+              </label>
+              <select name="quote[vehicle_attributes][vehicle_brand_id]" 
+                      id="quote_vehicle_attributes_vehicle_brand_id" 
+                      class="form-select" required data-required="true"
+                      data-action="change->quote-form#brandChanged">
+                <option value="">Selecione a marca...</option>
+                <% if defined?(@vehicle_brands) && @vehicle_brands.present? %>
+                  <% @vehicle_brands.each do |brand| %>
+                    <option value="<%= brand.id %>"><%= brand.name %></option>
+                  <% end %>
+                <% end %>
+              </select>
+              <div class="invalid-feedback">Por favor, selecione uma marca válida.</div>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-12">
+              <label for="quote_vehicle_attributes_vehicle_model_id" class="form-label required">
+                Modelo do Veículo
+              </label>
+              <select name="quote[vehicle_attributes][vehicle_model_id]" 
+                      id="quote_vehicle_attributes_vehicle_model_id" 
+                      class="form-select" required data-required="true" disabled
+                      data-action="change->quote-form#modelChanged">
+                <option value="">Primeiro selecione uma marca...</option>
+              </select>
+              <div class="invalid-feedback">Por favor, selecione um modelo válido.</div>
+              
+              <!-- Custom Model Input (hidden by default) -->
+              <div id="custom-model-section" style="display: none;" class="mt-2">
+                <label for="custom_model_name" class="form-label">
+                  <i class="fas fa-plus me-1"></i>
+                  Nome do Novo Modelo
+                </label>
+                <input type="text" class="form-control" id="custom_model_name" 
+                       name="quote[vehicle_attributes][custom_model_name]" 
+                       placeholder="Digite o nome do novo modelo">
+                <div class="form-text">Este modelo será criado automaticamente na base de dados</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-12">
+              <label for="vehicle_color" class="form-label">
+                <i class="fas fa-palette me-1"></i>
+                Cor
+              </label>
+              <input type="text" class="form-control" id="vehicle_color" 
+                     name="quote[vehicle_attributes][color]">
+              <div class="invalid-feedback">Por favor, informe a cor do veículo.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between">
+          <button type="button" class="btn btn-outline-secondary btn-lg" 
+                  data-action="click->quote-form#previousStep">
+            <i class="fas fa-arrow-left me-2"></i>
+            Anterior
+          </button>
+          <button type="button" class="btn btn-primary btn-lg" 
+                  data-action="click->quote-form#nextStep">
+            Próximo: Serviços
+            <i class="fas fa-arrow-right ms-2"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 3: Services -->
+      <div class="form-step d-none" data-quote-form-target="step">
+        <h4 class="mb-4">
+          <i class="fas fa-wrench me-2"></i>
+          Serviços a Orçar
+        </h4>
+
+        <div class="row mb-3">
+          <div class="col-12">
+            <label for="quote_notes" class="form-label">
+              <i class="fas fa-clipboard-list me-1"></i>
+              Descrição/Observações
+            </label>
+            <textarea class="form-control" id="quote_notes" name="quote[notes]" 
+                      rows="3" placeholder="Observações gerais sobre o orçamento..."></textarea>
+          </div>
+        </div>
+
+        <div class="alert alert-info">
+          <i class="fas fa-info-circle me-2"></i>
+          Para esta demonstração, adicione uma descrição e prossiga para o próximo passo.
+          Em futuras versões, aqui será possível adicionar itens de serviço detalhados.
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+          <button type="button" class="btn btn-outline-secondary btn-lg" 
+                  data-action="click->quote-form#previousStep">
+            <i class="fas fa-arrow-left me-2"></i>
+            Anterior
+          </button>
+          <button type="button" class="btn btn-primary btn-lg" 
+                  data-action="click->quote-form#nextStep">
+            Próximo: Revisão
+            <i class="fas fa-arrow-right ms-2"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 4: Review -->
+      <div class="form-step d-none" data-quote-form-target="step">
+        <h4 class="mb-4">
+          <i class="fas fa-eye me-2"></i>
+          Revisão do Orçamento
+        </h4>
+
+        <div class="alert alert-success">
+          <i class="fas fa-check-circle me-2"></i>
+          Revise os dados inseridos antes de finalizar o orçamento.
+        </div>
+
+        <div id="review-summary" class="card">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <h6><i class="fas fa-user me-2"></i>Cliente</h6>
+                <div id="review-customer" class="mb-3">
+                  <p class="mb-1"><strong>Nome:</strong> <span id="review-customer-name">-</span></p>
+                  <p class="mb-1"><strong>CPF/CNPJ:</strong> <span id="review-customer-document">-</span></p>
+                  <p class="mb-1"><strong>Email:</strong> <span id="review-customer-email">-</span></p>
+                  <p class="mb-1"><strong>Telefone:</strong> <span id="review-customer-phone">-</span></p>
+                  <p class="mb-0"><strong>Endereço:</strong> <span id="review-customer-address">-</span></p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <h6><i class="fas fa-car me-2"></i>Veículo</h6>
+                <div id="review-vehicle" class="mb-3">
+                  <p class="mb-1"><strong>Placa:</strong> <span id="review-vehicle-plate">-</span></p>
+                  <p class="mb-1"><strong>Marca:</strong> <span id="review-vehicle-brand">-</span></p>
+                  <p class="mb-1"><strong>Modelo:</strong> <span id="review-vehicle-model">-</span></p>
+                  <p class="mb-1"><strong>Ano:</strong> <span id="review-vehicle-year">-</span></p>
+                  <p class="mb-0"><strong>Cor:</strong> <span id="review-vehicle-color">-</span></p>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12">
+                <h6><i class="fas fa-clipboard-list me-2"></i>Observações</h6>
+                <p id="review-notes" class="mb-0">-</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+          <button type="button" class="btn btn-outline-secondary btn-lg" 
+                  data-action="click->quote-form#previousStep">
+            <i class="fas fa-arrow-left me-2"></i>
+            Anterior
+          </button>
+          <button type="submit" class="btn btn-success btn-lg">
+            <i class="fas fa-save me-2"></i>
+            Criar Orçamento
+          </button>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- Custom CSS -->
+<style>
+.step-item {
+  text-align: center;
+  flex: 1;
+  position: relative;
+}
+
+.step-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 20px;
+  left: 60%;
+  right: -40%;
+  height: 2px;
+  background: #e9ecef;
+  z-index: -1;
+}
+
+.step-item.active:not(:last-child)::after,
+.step-item.completed:not(:last-child)::after {
+  background: #198754;
+}
+
+.step-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #e9ecef;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin: 0 auto 8px;
+  transition: all 0.3s ease;
+}
+
+.step-item.active .step-circle {
+  background-color: #0d6efd;
+  color: white;
+}
+
+.step-item.completed .step-circle {
+  background-color: #198754;
+  color: white;
+}
+
+.form-step {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.required::after {
+  content: ' *';
+  color: #dc3545;
+}
+
+@media (max-width: 767.98px) {
+  .btn-lg {
+    min-height: 44px;
+  }
+  
+  .form-control, .form-select {
+    font-size: 16px;
+  }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('🚀 Page loaded, checking Stimulus controller...');
+  
+  // Debug helper to check if controller is connected
+  setTimeout(() => {
+    const formElement = document.querySelector('[data-controller="quote-form"]');
+    if (formElement) {
+      console.log('✅ Quote form element found:', formElement);
+      console.log('🎯 Controller data:', formElement.dataset);
+    } else {
+      console.error('❌ Quote form element not found!');
+    }
+  }, 1000);
+});
+</script> 

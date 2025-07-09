@@ -1,0 +1,106 @@
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="d-flex justify-content-between align-items-center">
+      <h1 class="h2 mb-0">
+        <i class="fas fa-industry text-primary"></i>
+        Marcas de Veículos
+      </h1>
+      <%= link_to "Nova Marca", new_vehicle_brand_path, class: "btn btn-primary" %>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-body">
+        <% if @vehicle_brands.any? %>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>ID</th>
+                  <th>Nome</th>
+                  <th>País de Origem</th>
+                  <th>Status</th>
+                  <th>Modelos</th>
+                  <th>Veículos</th>
+                  <th>Criado em</th>
+                  <th width="200">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @vehicle_brands.each do |brand| %>
+                  <tr>
+                    <td>
+                      <span class="badge bg-light text-dark">#<%= brand.id %></span>
+                    </td>
+                    <td>
+                      <strong><%= brand.name %></strong>
+                    </td>
+                    <td>
+                      <% if brand.country.present? %>
+                        <span class="text-muted"><%= brand.country %></span>
+                      <% else %>
+                        <span class="text-muted fst-italic">Não informado</span>
+                      <% end %>
+                    </td>
+                    <td>
+                      <% if brand.active? %>
+                        <span class="badge bg-success">Ativa</span>
+                      <% else %>
+                        <span class="badge bg-secondary">Inativa</span>
+                      <% end %>
+                    </td>
+                    <td>
+                      <span class="badge bg-info">
+                        <i class="fas fa-car"></i>
+                        <%= brand.vehicle_models.count %>
+                      </span>
+                    </td>
+                    <td>
+                      <span class="badge bg-primary">
+                        <i class="fas fa-list"></i>
+                        <%= brand.vehicles.count %>
+                      </span>
+                    </td>
+                    <td>
+                      <small class="text-muted">
+                        <%= brand.created_at.strftime("%d/%m/%Y") %>
+                      </small>
+                    </td>
+                    <td>
+                      <div class="btn-group" role="group">
+                        <%= link_to brand, class: "btn btn-sm btn-outline-primary", 
+                            title: "Ver marca" do %>
+                          <i class="fas fa-eye"></i>
+                        <% end %>
+                        <%= link_to edit_vehicle_brand_path(brand), class: "btn btn-sm btn-outline-secondary",
+                            title: "Editar marca" do %>
+                          <i class="fas fa-edit"></i>
+                        <% end %>
+                        <%= link_to brand, method: :delete, 
+                            class: "btn btn-sm btn-outline-danger",
+                            title: "Excluir marca",
+                            confirm: "Tem certeza que deseja excluir esta marca? Todos os modelos associados também serão removidos." do %>
+                          <i class="fas fa-trash"></i>
+                        <% end %>
+                      </div>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        <% else %>
+          <div class="text-center py-5">
+            <i class="fas fa-industry fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">Nenhuma marca de veículo cadastrada</h5>
+            <p class="text-muted mb-4">Comece adicionando as marcas de veículos que a oficina atende.</p>
+            <%= link_to "Criar Marca de Veículo", new_vehicle_brand_path, class: "btn btn-primary" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div> 

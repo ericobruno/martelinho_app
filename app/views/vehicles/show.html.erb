@@ -1,0 +1,196 @@
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="d-flex justify-content-between align-items-center">
+      <h1 class="h2 mb-0">
+        <i class="fas fa-car text-primary"></i>
+        <%= @vehicle.license_plate %>
+      </h1>
+      <div>
+        <%= link_to "Editar", edit_vehicle_path(@vehicle), class: "btn btn-warning me-2" %>
+        <%= link_to "Voltar", vehicles_path, class: "btn btn-secondary" %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <!-- Informações do Veículo -->
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="fas fa-info-circle"></i>
+          Informações do Veículo
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="row mb-3">
+          <div class="col-sm-4"><strong>Placa:</strong></div>
+          <div class="col-sm-8"><%= @vehicle.license_plate %></div>
+        </div>
+        
+        <div class="row mb-3">
+          <div class="col-sm-4"><strong>Cliente:</strong></div>
+          <div class="col-sm-8">
+            <%= link_to customer_path(@vehicle.customer), class: "text-decoration-none" do %>
+              <i class="fas fa-user text-muted me-1"></i>
+              <%= @vehicle.customer.name %>
+            <% end %>
+          </div>
+        </div>
+        
+        <div class="row mb-3">
+          <div class="col-sm-4"><strong>Marca:</strong></div>
+          <div class="col-sm-8"><%= @vehicle.vehicle_brand.name %></div>
+        </div>
+        
+        <div class="row mb-3">
+          <div class="col-sm-4"><strong>Modelo:</strong></div>
+          <div class="col-sm-8"><%= @vehicle.vehicle_model.name %></div>
+        </div>
+        
+        <div class="row mb-3">
+          <div class="col-sm-4"><strong>Ano:</strong></div>
+          <div class="col-sm-8">
+            <i class="fas fa-calendar text-muted me-1"></i>
+            <%= @vehicle.year %>
+          </div>
+        </div>
+        
+        <div class="row">
+          <div class="col-sm-4"><strong>Cor:</strong></div>
+          <div class="col-sm-8">
+            <i class="fas fa-palette text-muted me-1"></i>
+            <%= @vehicle.color %>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <div class="d-grid gap-2">
+          <%= link_to new_vehicle_quote_path(@vehicle), class: "btn btn-success" do %>
+            <i class="fas fa-file-invoice-dollar"></i> Novo Orçamento
+          <% end %>
+          <%= link_to new_vehicle_work_order_path(@vehicle), class: "btn btn-primary" do %>
+            <i class="fas fa-wrench"></i> Nova Ordem de Serviço
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Status Atual -->
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="fas fa-info-circle"></i>
+          Status Atual
+        </h5>
+      </div>
+      <div class="card-body">
+        <% if @current_status %>
+          <div class="alert alert-info">
+            <h6 class="alert-heading">
+              <i class="fas fa-map-marker-alt"></i>
+              <%= @current_status.department.name %>
+            </h6>
+            <p class="mb-1">
+              <strong>Status:</strong> <%= @current_status.status %>
+            </p>
+            <p class="mb-1">
+              <strong>Entrada:</strong> <%= @current_status.entered_at.strftime('%d/%m/%Y %H:%M') %>
+            </p>
+            <% if @current_status.notes.present? %>
+              <hr>
+              <p class="mb-0">
+                <strong>Observações:</strong><br>
+                <%= @current_status.notes %>
+              </p>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="text-center py-4">
+            <i class="fas fa-map-marker-alt fa-2x text-muted mb-2"></i>
+            <p class="text-muted mb-0">Veículo não está em nenhum departamento</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mt-4">
+  <!-- Orçamentos Recentes -->
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+          <i class="fas fa-file-invoice-dollar"></i>
+          Orçamentos Recentes
+        </h5>
+        <%= link_to "Ver todos", vehicle_quotes_path(@vehicle), class: "btn btn-sm btn-outline-primary" %>
+      </div>
+      <div class="card-body">
+        <% if @quotes.any? %>
+          <% @quotes.each do |quote| %>
+            <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+              <div>
+                <small class="text-muted">#<%= quote.id %></small>
+                <span class="badge bg-<%= quote.status == 'draft' ? 'secondary' : quote.status == 'sent' ? 'warning' : quote.status == 'approved' ? 'success' : 'danger' %>">
+                  <%= quote.status.humanize %>
+                </span>
+              </div>
+              <div class="text-end">
+                <div><%= quote.formatted_total if quote.respond_to?(:formatted_total) %></div>
+                <small class="text-muted"><%= quote.created_at.strftime('%d/%m/%Y') %></small>
+              </div>
+            </div>
+          <% end %>
+        <% else %>
+          <div class="text-center py-3">
+            <i class="fas fa-file-invoice-dollar fa-2x text-muted mb-2"></i>
+            <p class="text-muted mb-0">Nenhum orçamento encontrado</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Ordens de Serviço Recentes -->
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+          <i class="fas fa-wrench"></i>
+          Ordens de Serviço Recentes
+        </h5>
+        <%= link_to "Ver todas", vehicle_work_orders_path(@vehicle), class: "btn btn-sm btn-outline-primary" %>
+      </div>
+      <div class="card-body">
+        <% if @work_orders.any? %>
+          <% @work_orders.each do |work_order| %>
+            <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+              <div>
+                <small class="text-muted">#<%= work_order.id %></small>
+                <span class="badge bg-<%= work_order.status == 'pending' ? 'warning' : work_order.status == 'in_progress' ? 'info' : work_order.status == 'completed' ? 'success' : 'danger' %>">
+                  <%= work_order.status.humanize %>
+                </span>
+                <span class="badge bg-<%= work_order.priority == 'low' ? 'secondary' : work_order.priority == 'normal' ? 'primary' : work_order.priority == 'high' ? 'warning' : 'danger' %>">
+                  <%= work_order.priority.humanize %>
+                </span>
+              </div>
+              <div class="text-end">
+                <small class="text-muted"><%= work_order.created_at.strftime('%d/%m/%Y') %></small>
+              </div>
+            </div>
+          <% end %>
+        <% else %>
+          <div class="text-center py-3">
+            <i class="fas fa-wrench fa-2x text-muted mb-2"></i>
+            <p class="text-muted mb-0">Nenhuma ordem de serviço encontrada</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div> 

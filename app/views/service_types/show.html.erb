@@ -1,0 +1,208 @@
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="d-flex justify-content-between align-items-center">
+      <h1 class="h2 mb-0">
+        <i class="fas fa-tools text-primary"></i>
+        <%= @service_type.name %>
+      </h1>
+      <div class="d-flex gap-2">
+        <%= link_to "Editar", edit_service_type_path(@service_type), class: "btn btn-outline-primary" %>
+        <%= link_to "Voltar", service_types_path, class: "btn btn-secondary" %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <!-- Service Information -->
+  <div class="col-lg-8">
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="fas fa-info-circle"></i>
+          Informações do Serviço
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-8">
+            <label class="form-label text-muted">Nome do Serviço</label>
+            <div class="form-control-plaintext fw-bold">
+              <%= @service_type.name %>
+            </div>
+          </div>
+          
+          <div class="col-md-4">
+            <label class="form-label text-muted">Status</label>
+            <div class="form-control-plaintext">
+              <% if @service_type.active? %>
+                <span class="badge bg-success">Ativo</span>
+              <% else %>
+                <span class="badge bg-secondary">Inativo</span>
+              <% end %>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <label class="form-label text-muted">Categoria</label>
+            <div class="form-control-plaintext">
+              <% if @service_type.category.present? %>
+                <span class="badge bg-info"><%= @service_type.category.humanize %></span>
+              <% else %>
+                <span class="text-muted">Não definida</span>
+              <% end %>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <label class="form-label text-muted">Preço Padrão</label>
+            <div class="form-control-plaintext fw-bold text-success">
+              R$ <%= number_with_delimiter(@service_type.default_price_cents / 100.0, delimiter: '.', separator: ',') %>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <label class="form-label text-muted">Duração Estimada</label>
+            <div class="form-control-plaintext">
+              <% if @service_type.estimated_duration_minutes.present? %>
+                <span class="badge bg-secondary">
+                  <i class="fas fa-clock"></i>
+                  <%= pluralize(@service_type.estimated_duration_minutes, 'minuto') %>
+                </span>
+              <% else %>
+                <span class="text-muted">Não definida</span>
+              <% end %>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <label class="form-label text-muted">Criado em</label>
+            <div class="form-control-plaintext">
+              <%= @service_type.created_at.strftime("%d/%m/%Y às %H:%M") %>
+            </div>
+          </div>
+          
+          <% if @service_type.description.present? %>
+            <div class="col-12">
+              <label class="form-label text-muted">Descrição</label>
+              <div class="form-control-plaintext">
+                <%= simple_format(@service_type.description) %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Usage Statistics -->
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="fas fa-chart-line"></i>
+          Estatísticas de Uso
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="row text-center">
+          <div class="col-md-3">
+            <div class="border-end">
+              <h4 class="text-primary mb-1">
+                <%= @service_type.quote_items.count %>
+              </h4>
+              <small class="text-muted">Em Orçamentos</small>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="border-end">
+              <h4 class="text-info mb-1">
+                <%= @service_type.work_order_items.count %>
+              </h4>
+              <small class="text-muted">Em Ordens</small>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="border-end">
+              <h4 class="text-success mb-1">
+                R$ <%= number_with_delimiter(@service_type.work_order_items.sum(:unit_price_cents) / 100.0, delimiter: '.', separator: ',') %>
+              </h4>
+              <small class="text-muted">Faturamento</small>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <h4 class="text-warning mb-1">
+              <%= time_ago_in_words(@service_type.created_at) %>
+            </h4>
+            <small class="text-muted">Criado há</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions Sidebar -->
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="fas fa-cog"></i>
+          Ações
+        </h5>
+      </div>
+      <div class="card-body d-grid gap-2">
+        <%= link_to edit_service_type_path(@service_type), class: "btn btn-primary" do %>
+          <i class="fas fa-edit"></i> Editar Serviço
+        <% end %>
+        
+        <%= link_to service_types_path, class: "btn btn-outline-secondary" do %>
+          <i class="fas fa-list"></i> Listar Serviços
+        <% end %>
+        
+        <hr>
+        
+        <%= link_to @service_type, method: :delete, 
+            class: "btn btn-outline-danger",
+            confirm: "Tem certeza que deseja excluir este tipo de serviço? Esta ação não pode ser desfeita." do %>
+          <i class="fas fa-trash"></i> Excluir Serviço
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Recent Usage -->
+    <div class="card mt-4">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="fas fa-history"></i>
+          Uso Recente
+        </h5>
+      </div>
+      <div class="card-body">
+        <% recent_items = @service_type.work_order_items.includes(:work_order).limit(5).order(created_at: :desc) %>
+        <% if recent_items.any? %>
+          <div class="list-group list-group-flush">
+            <% recent_items.each do |item| %>
+              <div class="list-group-item px-0">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div class="ms-2 me-auto">
+                    <div class="fw-bold">Ordem #<%= item.work_order.id %></div>
+                    <small class="text-muted">
+                      <%= item.work_order.vehicle.license_plate %> - 
+                      <%= item.created_at.strftime("%d/%m") %>
+                    </small>
+                  </div>
+                  <span class="badge bg-primary rounded-pill">
+                    <%= item.quantity %>x
+                  </span>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-muted text-center">
+            <i class="fas fa-info-circle"></i>
+            Nenhum uso recente encontrado.
+          </p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div> 

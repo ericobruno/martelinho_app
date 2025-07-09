@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Martelinho Carlão - Sistema de Gestão</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
+    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <%# Includes all stylesheet files in app/assets/stylesheets %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "mobile", "data-turbo-track": "reload" %>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+  </head>
+
+  <body class="bg-light" data-controller="mobile">
+    <% if user_signed_in? %>
+      <!-- Navbar -->
+      <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+        <div class="container-fluid">
+          <%= link_to "🔨 Martelinho Carlão", root_path, class: "navbar-brand fw-bold" %>
+          
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+              <li class="nav-item">
+                <%= link_to "Dashboard", root_path, class: "nav-link" %>
+              </li>
+              <li class="nav-item">
+                <%= link_to "Clientes", customers_path, class: "nav-link" %>
+              </li>
+              <li class="nav-item">
+                <%= link_to "Veículos", vehicles_path, class: "nav-link" %>
+              </li>
+              <li class="nav-item">
+                <%= link_to "Orçamentos", quotes_path, class: "nav-link" %>
+              </li>
+              <li class="nav-item">
+                <%= link_to "Ordens de Serviço", work_orders_path, class: "nav-link" %>
+              </li>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                  Configurações
+                </a>
+                <ul class="dropdown-menu">
+                  <li><%= link_to "Departamentos", departments_path, class: "dropdown-item" %></li>
+                  <li><%= link_to "Tipos de Serviço", service_types_path, class: "dropdown-item" %></li>
+                  <li><%= link_to "Marcas de Veículos", vehicle_brands_path, class: "dropdown-item" %></li>
+                  <% if current_user.admin? %>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><%= link_to "Usuários", admin_users_path, class: "dropdown-item" %></li>
+                  <% end %>
+                </ul>
+              </li>
+            </ul>
+            
+            <ul class="navbar-nav">
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                  <i class="fas fa-user"></i> <%= current_user.name %>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li><%= link_to "Meu Perfil", edit_user_registration_path, class: "dropdown-item" %></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><%= link_to "Sair", destroy_user_session_path, method: :delete, class: "dropdown-item" %></li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+      
+      <!-- Main Content -->
+      <div class="container-fluid" style="margin-top: 76px;">
+        <!-- Flash Messages Container for Hotwire -->
+        <div id="flash_messages">
+          <%= render "shared/flash" %>
+        </div>
+        
+        <%= yield %>
+      </div>
+    <% else %>
+      <!-- Authentication Layout -->
+      <div class="min-vh-100 d-flex align-items-center justify-content-center bg-primary">
+        <div class="col-md-6 col-lg-4">
+          <div class="card shadow-lg">
+            <div class="card-body p-5">
+              <div class="text-center mb-4">
+                <h1 class="h3 mb-3">🔨 Martelinho Carlão</h1>
+                <p class="text-muted">Sistema de Gestão</p>
+              </div>
+              
+              <!-- Flash Messages Container for Hotwire -->
+              <div id="flash_messages">
+                <%= render "shared/flash" %>
+              </div>
+              
+              <%= yield %>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Scripts at bottom for better performance -->
+    <!-- jQuery (required for Select2) -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <!-- Bootstrap JS Bundle (must load before Stimulus) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    
+    <!-- Load Hotwire/Stimulus LAST to ensure proper initialization -->
+    <%= javascript_importmap_tags %>
+  </body>
+</html>

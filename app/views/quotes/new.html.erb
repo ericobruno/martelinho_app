@@ -1,0 +1,150 @@
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="h3 mb-0">
+    <i class="fas fa-file-invoice-dollar me-2"></i>
+    Novo Orçamento
+  </h1>
+  <%= link_to quotes_path, class: "btn btn-outline-secondary" do %>
+    <i class="fas fa-arrow-left me-1"></i>
+    Voltar
+  <% end %>
+</div>
+
+<!-- Progress Indicator -->
+<div class="progress mb-4" style="height: 8px;">
+  <div class="progress-bar" role="progressbar" style="width: 25%" 
+       data-quote-form-target="progress" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+  </div>
+</div>
+
+<!-- Step Indicator -->
+<div class="row mb-4">
+  <div class="col">
+    <div class="d-flex justify-content-between">
+      <div class="step-item active">
+        <div class="step-circle">1</div>
+        <small>Cliente</small>
+      </div>
+      <div class="step-item">
+        <div class="step-circle">2</div>
+        <small>Veículo</small>
+      </div>
+      <div class="step-item">
+        <div class="step-circle">3</div>
+        <small>Serviços</small>
+      </div>
+      <div class="step-item">
+        <div class="step-circle">4</div>
+        <small>Revisão</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Flash Messages -->
+<div id="flash_messages">
+  <% if flash[:notice] %>
+    <div class="alert alert-success alert-dismissible fade show">
+      <%= flash[:notice] %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  <% end %>
+  <% if flash[:alert] %>
+    <div class="alert alert-danger alert-dismissible fade show">
+      <%= flash[:alert] %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  <% end %>
+</div>
+
+<%= render 'form', quote: @quote %>
+
+<!-- Custom CSS -->
+<style>
+.step-item {
+  text-align: center;
+  flex: 1;
+  position: relative;
+}
+
+.step-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 20px;
+  left: 60%;
+  right: -40%;
+  height: 2px;
+  background: #e9ecef;
+  z-index: -1;
+}
+
+.step-item.active:not(:last-child)::after,
+.step-item.completed:not(:last-child)::after {
+  background: #198754;
+}
+
+.step-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #e9ecef;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin: 0 auto 8px;
+  transition: all 0.3s ease;
+}
+
+.step-item.active .step-circle {
+  background-color: #0d6efd;
+  color: white;
+}
+
+.step-item.completed .step-circle {
+  background-color: #198754;
+  color: white;
+}
+
+.form-step {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.required::after {
+  content: ' *';
+  color: #dc3545;
+}
+
+@media (max-width: 767.98px) {
+  .btn-lg {
+    min-height: 44px;
+  }
+  
+  .form-control, .form-select {
+    font-size: 16px;
+  }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('🚀 Page loaded, checking Stimulus controller...');
+  
+  // Debug helper to check if controller is connected
+  setTimeout(() => {
+    const formElement = document.querySelector('[data-controller="quote-form"]');
+    if (formElement) {
+      console.log('✅ Quote form element found:', formElement);
+      console.log('🎯 Controller data:', formElement.dataset);
+    } else {
+      console.error('❌ Quote form element not found!');
+    }
+  }, 1000);
+});
+</script> 

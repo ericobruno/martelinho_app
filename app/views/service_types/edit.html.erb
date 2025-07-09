@@ -1,0 +1,173 @@
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="d-flex justify-content-between align-items-center">
+      <h1 class="h2 mb-0">
+        <i class="fas fa-edit text-primary"></i>
+        Editar Serviço: <%= @service_type.name %>
+      </h1>
+      <div class="d-flex gap-2">
+        <%= link_to "Ver Serviço", @service_type, class: "btn btn-outline-primary" %>
+        <%= link_to "Voltar", service_types_path, class: "btn btn-secondary" %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <%= form_with model: @service_type, local: true, class: "needs-validation", novalidate: true do |form| %>
+      <% if @service_type.errors.any? %>
+        <div class="alert alert-danger mb-4">
+          <h6><i class="fas fa-exclamation-triangle"></i> Erro ao salvar tipo de serviço:</h6>
+          <ul class="mb-0">
+            <% @service_type.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="fas fa-info-circle"></i>
+            Informações do Serviço
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-8">
+              <%= form.label :name, "Nome do Serviço *", class: "form-label" %>
+              <%= form.text_field :name, class: "form-control", 
+                  placeholder: "Ex: Troca de óleo, Alinhamento, Balanceamento...", required: true %>
+              <div class="invalid-feedback">
+                Por favor, informe o nome do serviço.
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <%= form.label :active, "Status *", class: "form-label" %>
+              <%= form.select :active, 
+                  options_for_select([
+                    ['Ativo', true],
+                    ['Inativo', false]
+                  ], @service_type.active),
+                  {}, { class: "form-select", required: true } %>
+            </div>
+
+            <div class="col-md-6">
+              <%= form.label :category, "Categoria", class: "form-label" %>
+              <%= form.select :category, 
+                  options_for_select([
+                    ['', ''],
+                    ['Mecânica', 'mechanical'],
+                    ['Elétrica', 'electrical'],
+                    ['Funilaria', 'bodywork'],
+                    ['Pintura', 'painting'],
+                    ['Pneus e Rodas', 'tires'],
+                    ['Ar Condicionado', 'air_conditioning'],
+                    ['Suspensão', 'suspension'],
+                    ['Freios', 'brakes'],
+                    ['Motor', 'engine'],
+                    ['Transmissão', 'transmission'],
+                    ['Outro', 'other']
+                  ], @service_type.category),
+                  { prompt: "Selecione uma categoria" }, 
+                  { class: "form-select" } %>
+            </div>
+
+            <div class="col-md-6">
+              <%= form.label :default_price_cents, "Preço Padrão *", class: "form-label" %>
+              <div class="input-group">
+                <span class="input-group-text">R$</span>
+                <%= form.number_field :default_price_cents, class: "form-control", 
+                    step: 0.01, min: 0, required: true,
+                    value: @service_type.default_price_cents ? (@service_type.default_price_cents / 100.0) : nil,
+                    placeholder: "0,00" %>
+              </div>
+              <div class="form-text">
+                Preço padrão cobrado por este serviço.
+              </div>
+              <div class="invalid-feedback">
+                Por favor, informe o preço padrão.
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <%= form.label :estimated_duration_minutes, "Duração Estimada (minutos)", class: "form-label" %>
+              <%= form.number_field :estimated_duration_minutes, class: "form-control", 
+                  min: 1, placeholder: "Ex: 60, 120, 180..." %>
+              <div class="form-text">
+                Tempo estimado para conclusão do serviço.
+              </div>
+            </div>
+
+            <div class="col-12">
+              <%= form.label :description, "Descrição", class: "form-label" %>
+              <%= form.text_area :description, class: "form-control", rows: 4,
+                  placeholder: "Descreva detalhes sobre este serviço, procedimentos, observações..." %>
+              <div class="form-text">
+                Informações adicionais sobre este serviço (opcional).
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Service Usage Summary -->
+      <div class="card mt-4">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="fas fa-chart-bar"></i>
+            Resumo de Uso
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row text-center">
+            <div class="col-md-4">
+              <div class="border-end">
+                <h4 class="text-primary mb-1"><%= @service_type.quote_items.count %></h4>
+                <small class="text-muted">Em Orçamentos</small>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="border-end">
+                <h4 class="text-info mb-1"><%= @service_type.work_order_items.count %></h4>
+                <small class="text-muted">Em Ordens</small>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <h4 class="text-success mb-1">
+                R$ <%= number_with_delimiter(@service_type.work_order_items.sum(:unit_price_cents) / 100.0, delimiter: '.', separator: ',') %>
+              </h4>
+              <small class="text-muted">Faturamento</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mt-4">
+        <div class="col-12">
+          <div class="d-flex gap-2">
+            <%= form.submit "Salvar Alterações", class: "btn btn-primary" %>
+            <%= link_to "Cancelar", @service_type, class: "btn btn-outline-secondary" %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Convert price input from cents to currency format
+  const priceInput = document.querySelector('#service_type_default_price_cents');
+  if (priceInput) {
+    // Convert back to cents before form submission
+    priceInput.closest('form').addEventListener('submit', function() {
+      const value = parseFloat(priceInput.value) || 0;
+      priceInput.value = Math.round(value * 100);
+    });
+  }
+});
+</script> 

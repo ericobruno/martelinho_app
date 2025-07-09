@@ -1,0 +1,100 @@
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="d-flex justify-content-between align-items-center">
+      <h1 class="h2 mb-0">
+        <i class="fas fa-car text-primary"></i>
+        Veículos
+      </h1>
+      <%= link_to "Novo Veículo", new_vehicle_path, class: "btn btn-primary" %>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h5 class="mb-0">
+      <i class="fas fa-list"></i>
+      Lista de Veículos
+    </h5>
+  </div>
+  <div class="card-body">
+    <% if @vehicles.any? %>
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Placa</th>
+              <th>Cliente</th>
+              <th>Marca/Modelo</th>
+              <th>Ano</th>
+              <th>Cor</th>
+              <th class="text-center">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @vehicles.each do |vehicle| %>
+              <tr>
+                <td>
+                  <strong><%= vehicle.license_plate %></strong>
+                </td>
+                <td>
+                  <%= link_to customer_path(vehicle.customer), class: "text-decoration-none" do %>
+                    <i class="fas fa-user text-muted me-1"></i>
+                    <%= vehicle.customer.name %>
+                  <% end %>
+                </td>
+                <td>
+                  <%= vehicle.vehicle_brand.name %> <%= vehicle.vehicle_model.name %>
+                </td>
+                <td>
+                  <i class="fas fa-calendar text-muted me-1"></i>
+                  <%= vehicle.year %>
+                </td>
+                <td>
+                  <i class="fas fa-palette text-muted me-1"></i>
+                  <%= vehicle.color %>
+                </td>
+                <td class="text-center">
+                  <div class="btn-group" role="group">
+                    <%= link_to vehicle_path(vehicle), class: "btn btn-sm btn-outline-info", title: "Ver" do %>
+                      <i class="fas fa-eye"></i>
+                    <% end %>
+                    <%= link_to edit_vehicle_path(vehicle), class: "btn btn-sm btn-outline-warning", title: "Editar" do %>
+                      <i class="fas fa-edit"></i>
+                    <% end %>
+                    <%= link_to new_vehicle_quote_path(vehicle), class: "btn btn-sm btn-outline-success", title: "Orçamento" do %>
+                      <i class="fas fa-file-invoice-dollar"></i>
+                    <% end %>
+                    <%= link_to new_vehicle_work_order_path(vehicle), class: "btn btn-sm btn-outline-primary", title: "Ordem de Serviço" do %>
+                      <i class="fas fa-wrench"></i>
+                    <% end %>
+                    <%= link_to vehicle_path(vehicle), method: :delete, 
+                        class: "btn btn-sm btn-outline-danger", 
+                        title: "Excluir",
+                        data: { 
+                          confirm: "Tem certeza? Esta ação não pode ser desfeita.",
+                          turbo_method: :delete 
+                        } do %>
+                      <i class="fas fa-trash"></i>
+                    <% end %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="text-center py-5">
+        <i class="fas fa-car fa-3x text-muted mb-3"></i>
+        <h5 class="text-muted">Nenhum veículo cadastrado</h5>
+        <p class="text-muted">Clique no botão "Novo Veículo" para começar.</p>
+      </div>
+    <% end %>
+  </div>
+  <% if @vehicles.any? %>
+    <div class="card-footer text-muted">
+      Total: <%= @vehicles.count %> veículo<%= 's' if @vehicles.count != 1 %>
+    </div>
+  <% end %>
+</div> 

@@ -1,0 +1,142 @@
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="d-flex justify-content-between align-items-center">
+      <h1 class="h2 mb-0">
+        <i class="fas fa-car text-primary"></i>
+        Modelos de Veículos
+      </h1>
+      <%= link_to "Novo Modelo", new_vehicle_model_path, 
+          class: "btn btn-primary" %>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h5 class="mb-0">
+      <i class="fas fa-list"></i>
+      Lista de Modelos
+    </h5>
+  </div>
+  <div class="card-body p-0">
+    <% if @vehicle_models.any? %>
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th width="8%">ID</th>
+              <th width="20%">Nome</th>
+              <th width="20%">Marca</th>
+              <th width="12%">Ano Inicial</th>
+              <th width="12%">Ano Final</th>
+              <th width="10%">Status</th>
+              <th width="8%">Veículos</th>
+              <th width="10%">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @vehicle_models.includes(:vehicle_brand, :vehicles).each do |model| %>
+              <tr>
+                <td class="fw-bold">#<%= model.id %></td>
+                <td>
+                  <%= link_to model.name, model, 
+                      class: "text-decoration-none fw-semibold" %>
+                </td>
+                <td>
+                  <%= link_to model.vehicle_brand.name, model.vehicle_brand,
+                      class: "text-decoration-none text-muted" %>
+                </td>
+                <td>
+                  <span class="badge bg-light text-dark">
+                    <%= model.initial_year %>
+                  </span>
+                </td>
+                <td>
+                  <% if model.final_year.present? %>
+                    <span class="badge bg-light text-dark">
+                      <%= model.final_year %>
+                    </span>
+                  <% else %>
+                    <span class="badge bg-success">
+                      Atual
+                    </span>
+                  <% end %>
+                </td>
+                <td>
+                  <% if model.active? %>
+                    <span class="badge bg-success">
+                      <i class="fas fa-check"></i> Ativo
+                    </span>
+                  <% else %>
+                    <span class="badge bg-secondary">
+                      <i class="fas fa-times"></i> Inativo
+                    </span>
+                  <% end %>
+                </td>
+                <td>
+                  <span class="badge bg-info">
+                    <%= model.vehicles.count %>
+                  </span>
+                </td>
+                <td>
+                  <div class="btn-group" role="group">
+                    <%= link_to model, class: "btn btn-sm btn-outline-primary",
+                        title: "Ver detalhes" do %>
+                      <i class="fas fa-eye"></i>
+                    <% end %>
+                    
+                    <%= link_to edit_vehicle_model_path(model), 
+                        class: "btn btn-sm btn-outline-warning",
+                        title: "Editar modelo" do %>
+                      <i class="fas fa-edit"></i>
+                    <% end %>
+                    
+                    <%= link_to model, method: :delete,
+                        class: "btn btn-sm btn-outline-danger",
+                        title: "Excluir modelo",
+                        confirm: "Tem certeza que deseja excluir o modelo #{model.name}? Esta ação não pode ser desfeita." do %>
+                      <i class="fas fa-trash"></i>
+                    <% end %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="text-center py-5">
+        <i class="fas fa-car fa-3x text-muted mb-3"></i>
+        <h5 class="text-muted">Nenhum modelo cadastrado</h5>
+        <p class="text-muted mb-4">
+          Comece cadastrando o primeiro modelo de veículo da oficina.
+        </p>
+        <%= link_to "Cadastrar Primeiro Modelo", new_vehicle_model_path, 
+            class: "btn btn-primary" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<% if @vehicle_models.any? %>
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <small class="text-muted">
+          Total: <%= pluralize(@vehicle_models.count, 'modelo', 'modelos') %> cadastrado<%= @vehicle_models.count == 1 ? '' : 's' %>
+        </small>
+        
+        <div class="d-flex gap-3">
+          <small class="text-muted">
+            <i class="fas fa-check-circle text-success"></i>
+            <%= @vehicle_models.active.count %> ativo<%= @vehicle_models.active.count == 1 ? '' : 's' %>
+          </small>
+          <small class="text-muted">
+            <i class="fas fa-times-circle text-secondary"></i>
+            <%= @vehicle_models.inactive.count %> inativo<%= @vehicle_models.inactive.count == 1 ? '' : 's' %>
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %> 

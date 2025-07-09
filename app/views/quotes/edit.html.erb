@@ -1,0 +1,335 @@
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="d-flex justify-content-between align-items-center">
+      <h1 class="h2 mb-0">
+        <i class="fas fa-file-invoice-dollar text-primary"></i>
+        Editar Orçamento #<%= @quote.id %>
+      </h1>
+      <div>
+        <%= link_to "Ver", quote_path(@quote), class: "btn btn-info me-2" %>
+        <%= link_to "Voltar", quotes_path, class: "btn btn-secondary" %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-10">
+    <%= form_with model: @quote, local: true, class: "needs-validation", novalidate: true do |form| %>
+      <% if @quote.errors.any? %>
+        <div class="alert alert-danger mb-4">
+          <h6><i class="fas fa-exclamation-triangle"></i> Erro ao salvar orçamento:</h6>
+          <ul class="mb-0">
+            <% @quote.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <!-- Basic Information -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="fas fa-info-circle"></i>
+            Informações Básicas
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <%= form.label :customer_id, "Cliente *", class: "form-label" %>
+              <%= form.collection_select :customer_id, Customer.order(:name), :id, :name, 
+                  { prompt: "Selecione um cliente" }, 
+                  { class: "form-select", required: true } %>
+            </div>
+
+            <div class="col-md-6">
+              <%= form.label :vehicle_id, "Veículo", class: "form-label" %>
+              <%= form.collection_select :vehicle_id, @quote.customer.vehicles, :id, :full_description, 
+                  { prompt: "Selecione um veículo (opcional)" }, 
+                  { class: "form-select", id: "vehicle_select" } %>
+            </div>
+
+            <div class="col-md-6">
+              <%= form.label :status, "Status", class: "form-label" %>
+              <%= form.select :status, 
+                  options_for_select([
+                    ['Pendente', 'pending'],
+                    ['Aprovado', 'approved'],
+                    ['Rejeitado', 'rejected'],
+                    ['Expirado', 'expired']
+                  ], @quote.status),
+                  {}, { class: "form-select" } %>
+            </div>
+
+            <div class="col-12">
+              <%= form.label :notes, "Descrição", class: "form-label" %>
+              <%= form.text_area :notes, class: "form-control", rows: 3, 
+                  placeholder: "Descreva o serviço solicitado..." %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quote Items -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+              <i class="fas fa-list"></i>
+              Itens do Orçamento
+            </h5>
+            <button type="button" class="btn btn-sm btn-outline-primary" id="add-item-btn">
+              <i class="fas fa-plus"></i> Adicionar Item
+            </button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div id="quote-items">
+            <!-- Existing quote items -->
+            <% @quote.quote_items.each_with_index do |item, index| %>
+              <div class="quote-item border rounded p-3 mb-3">
+                <%= form.fields_for :quote_items, item, index: index do |item_form| %>
+                  <div class="row g-3 align-items-center">
+                    <div class="col-md-5">
+                      <%= item_form.label :service_type_id, "Serviço *", class: "form-label" %>
+                      <%= item_form.collection_select :service_type_id, ServiceType.all, :id, :name, 
+                          { prompt: "Selecione um serviço" }, 
+                          { class: "form-select service-select", required: true } %>
+                    </div>
+                    
+                    <div class="col-md-2">
+                      <%= item_form.label :quantity, "Qtd *", class: "form-label" %>
+                      <%= item_form.number_field :quantity, class: "form-control quantity-input", 
+                          min: 1, required: true %>
+                    </div>
+                    
+                    <div class="col-md-2">
+                      <%= item_form.label :unit_price_cents, "Valor Unit. *", class: "form-label" %>
+                      <%= item_form.number_field :unit_price_cents, class: "form-control unit-price-input", 
+                          min: 0, step: 0.01, value: (item.unit_price_cents / 100.0), required: true %>
+                    </div>
+                    
+                    <div class="col-md-2">
+                      <label class="form-label">Total</label>
+                      <input type="text" class="form-control total-price" readonly 
+                             value="R$ <%= number_with_delimiter(item.total_price_cents / 100.0, delimiter: '.', separator: ',') %>">
+                    </div>
+                    
+                    <div class="col-md-1">
+                      <label class="form-label">&nbsp;</label>
+                      <%= item_form.check_box :_destroy, { class: "d-none destroy-field" }, "1", "0" %>
+                      <button type="button" class="btn btn-outline-danger btn-sm remove-item-btn d-block">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+          <div id="quote-total" class="text-end mt-3">
+            <h5>Total: <span class="text-primary">R$ <%= number_with_delimiter(@quote.total_price_cents / 100.0, delimiter: '.', separator: ',') %></span></h5>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="row">
+        <div class="col-12">
+          <div class="d-flex gap-2">
+            <%= form.submit "Atualizar Orçamento", class: "btn btn-primary" %>
+            <%= link_to "Cancelar", quote_path(@quote), class: "btn btn-outline-secondary" %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- Quote Item Template (hidden) -->
+<template id="quote-item-template">
+  <div class="quote-item border rounded p-3 mb-3">
+    <div class="row g-3 align-items-center">
+      <div class="col-md-5">
+        <label class="form-label">Serviço *</label>
+        <select class="form-select service-select" name="quote[quote_items_attributes][][service_type_id]" required>
+          <option value="">Selecione um serviço</option>
+          <% ServiceType.all.each do |service| %>
+            <option value="<%= service.id %>" data-price="<%= service.default_price_cents %>">
+              <%= service.name %> - R$ <%= number_with_delimiter(service.default_price_cents / 100.0, delimiter: '.', separator: ',') %>
+            </option>
+          <% end %>
+        </select>
+      </div>
+      
+      <div class="col-md-2">
+        <label class="form-label">Qtd *</label>
+        <input type="number" class="form-control quantity-input" 
+               name="quote[quote_items_attributes][][quantity]" 
+               min="1" value="1" required>
+      </div>
+      
+      <div class="col-md-2">
+        <label class="form-label">Valor Unit. *</label>
+        <input type="number" class="form-control unit-price-input" 
+               name="quote[quote_items_attributes][][unit_price_cents]" 
+               min="0" step="0.01" required>
+      </div>
+      
+      <div class="col-md-2">
+        <label class="form-label">Total</label>
+        <input type="text" class="form-control total-price" readonly>
+      </div>
+      
+      <div class="col-md-1">
+        <label class="form-label">&nbsp;</label>
+        <button type="button" class="btn btn-outline-danger btn-sm remove-item-btn d-block">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  let itemIndex = <%= @quote.quote_items.length %>;
+  
+  // Customer selection change
+  document.getElementById('quote_customer_id').addEventListener('change', function() {
+    const customerId = this.value;
+    const vehicleSelect = document.getElementById('vehicle_select');
+    
+    // Clear vehicle options
+    vehicleSelect.innerHTML = '<option value="">Selecione um veículo (opcional)</option>';
+    
+    if (customerId) {
+      // Fetch customer vehicles (you might want to implement this via AJAX)
+      // For now, we'll leave it as is
+    }
+  });
+  
+  // Add item button
+  document.getElementById('add-item-btn').addEventListener('click', function() {
+    addQuoteItem();
+  });
+  
+  // Setup existing items
+  setupExistingItems();
+  
+  function setupExistingItems() {
+    document.querySelectorAll('.quote-item').forEach(item => {
+      const serviceSelect = item.querySelector('.service-select');
+      const quantityInput = item.querySelector('.quantity-input');
+      const unitPriceInput = item.querySelector('.unit-price-input');
+      const removeBtn = item.querySelector('.remove-item-btn');
+      const destroyField = item.querySelector('.destroy-field');
+      
+      if (serviceSelect) {
+        serviceSelect.addEventListener('change', function() {
+          const selectedOption = this.options[this.selectedIndex];
+          const price = selectedOption.dataset.price || 0;
+          unitPriceInput.value = (price / 100).toFixed(2);
+          calculateItemTotal(item);
+        });
+      }
+      
+      if (quantityInput) {
+        quantityInput.addEventListener('input', function() {
+          calculateItemTotal(item);
+        });
+      }
+      
+      if (unitPriceInput) {
+        unitPriceInput.addEventListener('input', function() {
+          calculateItemTotal(item);
+        });
+      }
+      
+      if (removeBtn) {
+        removeBtn.addEventListener('click', function() {
+          if (destroyField) {
+            destroyField.checked = true;
+            item.style.display = 'none';
+          } else {
+            item.remove();
+          }
+          calculateQuoteTotal();
+        });
+      }
+    });
+  }
+  
+  function addQuoteItem() {
+    const template = document.getElementById('quote-item-template');
+    const clone = template.content.cloneNode(true);
+    
+    // Update field names with index
+    const inputs = clone.querySelectorAll('input, select');
+    inputs.forEach(input => {
+      if (input.name) {
+        input.name = input.name.replace('[]', `[${itemIndex}]`);
+      }
+    });
+    
+    // Add event listeners
+    const serviceSelect = clone.querySelector('.service-select');
+    const quantityInput = clone.querySelector('.quantity-input');
+    const unitPriceInput = clone.querySelector('.unit-price-input');
+    const removeBtn = clone.querySelector('.remove-item-btn');
+    
+    serviceSelect.addEventListener('change', function() {
+      const selectedOption = this.options[this.selectedIndex];
+      const price = selectedOption.dataset.price || 0;
+      unitPriceInput.value = (price / 100).toFixed(2);
+      calculateItemTotal(clone);
+    });
+    
+    quantityInput.addEventListener('input', function() {
+      calculateItemTotal(clone);
+    });
+    
+    unitPriceInput.addEventListener('input', function() {
+      calculateItemTotal(clone);
+    });
+    
+    removeBtn.addEventListener('click', function() {
+      clone.querySelector('.quote-item').remove();
+      calculateQuoteTotal();
+    });
+    
+    document.getElementById('quote-items').appendChild(clone);
+    itemIndex++;
+    calculateQuoteTotal();
+  }
+  
+  function calculateItemTotal(itemElement) {
+    const quantity = parseFloat(itemElement.querySelector('.quantity-input').value) || 0;
+    const unitPrice = parseFloat(itemElement.querySelector('.unit-price-input').value) || 0;
+    const total = quantity * unitPrice;
+    
+    itemElement.querySelector('.total-price').value = total.toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    });
+    
+    calculateQuoteTotal();
+  }
+  
+  function calculateQuoteTotal() {
+    let total = 0;
+    document.querySelectorAll('.quote-item:not([style*="display: none"])').forEach(item => {
+      const quantity = parseFloat(item.querySelector('.quantity-input').value) || 0;
+      const unitPrice = parseFloat(item.querySelector('.unit-price-input').value) || 0;
+      total += quantity * unitPrice;
+    });
+    
+    document.querySelector('#quote-total span').textContent = total.toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    });
+  }
+});
+</script> 

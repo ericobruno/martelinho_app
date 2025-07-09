@@ -1,0 +1,241 @@
+<div class="row mb-4">
+  <div class="col-12">
+    <h1 class="h2 mb-3">
+      <i class="fas fa-tachometer-alt text-primary"></i>
+      Dashboard
+    </h1>
+    <p class="text-muted">Bem-vindo ao sistema de gestão Martelinho Carlão</p>
+  </div>
+</div>
+
+<!-- Estatísticas Principais -->
+<div class="row g-3 mb-4">
+  <div class="col-md-6">
+    <div class="card bg-warning text-white h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <div>
+            <h4 class="card-title"><%= @stats[:active_quotes] %></h4>
+            <p class="card-text">Orçamentos Ativos</p>
+          </div>
+          <div class="align-self-center">
+            <i class="fas fa-file-invoice-dollar fa-2x opacity-75"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-6">
+    <div class="card bg-info text-white h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <div>
+            <h4 class="card-title"><%= @stats[:active_work_orders] %></h4>
+            <p class="card-text">Ordens Ativas</p>
+          </div>
+          <div class="align-self-center">
+            <i class="fas fa-wrench fa-2x opacity-75"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Ordens de Serviço por Status -->
+<div class="row g-3 mb-4">
+  <div class="col-md-6">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5 class="card-title">
+          <i class="fas fa-clock text-warning"></i>
+          Pendentes
+        </h5>
+        <h3 class="text-warning"><%= @stats[:pending_work_orders] %></h3>
+        <p class="text-muted mb-0">Ordens aguardando início</p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-6">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5 class="card-title">
+          <i class="fas fa-play text-info"></i>
+          Em Andamento
+        </h5>
+        <h3 class="text-info"><%= @stats[:in_progress_work_orders] %></h3>
+        <p class="text-muted mb-0">Ordens em execução</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <!-- Orçamentos Recentes -->
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+          <i class="fas fa-file-invoice-dollar"></i>
+          Orçamentos Recentes
+        </h5>
+        <%= link_to new_quote_path, class: "text-white text-decoration-none", 
+            title: "Criar novo orçamento" do %>
+          <i class="fas fa-plus-circle fa-lg opacity-75 hover-opacity-100" 
+             style="transition: opacity 0.2s;"></i>
+        <% end %>
+      </div>
+      <div class="card-body">
+        <% if @recent_quotes.any? %>
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>Cliente</th>
+                  <th>Veículo</th>
+                  <th>Status</th>
+                  <th>Valor</th>
+                  <th>Data</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @recent_quotes.each do |quote| %>
+                  <tr>
+                    <td><%= quote.customer.name %></td>
+                    <td><%= quote.vehicle.full_description %></td>
+                    <td>
+                      <span class="badge bg-<%= quote.status == 'draft' ? 'secondary' : quote.status == 'sent' ? 'warning' : quote.status == 'approved' ? 'success' : 'danger' %>">
+                        <%= quote.status.humanize %>
+                      </span>
+                    </td>
+                    <td><%= quote.formatted_total %></td>
+                    <td><%= quote.created_at.strftime('%d/%m') %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        <% else %>
+          <div class="text-center text-muted py-4">
+            <i class="fas fa-file-invoice-dollar fa-3x mb-3"></i>
+            <p class="mb-3">Nenhum orçamento encontrado</p>
+            <%= link_to new_quote_path, class: "btn btn-primary btn-sm" do %>
+              <i class="fas fa-plus me-1"></i>
+              Criar primeiro orçamento
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+      <div class="card-footer">
+        <%= link_to "Ver todos os orçamentos", quotes_path, class: "btn btn-primary btn-sm" %>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Ordens de Serviço Recentes -->
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+          <i class="fas fa-wrench"></i>
+          Ordens de Serviço Recentes
+        </h5>
+        <%= link_to new_work_order_path, class: "text-white text-decoration-none", 
+            title: "Criar nova ordem de serviço" do %>
+          <i class="fas fa-plus-circle fa-lg opacity-75 hover-opacity-100" 
+             style="transition: opacity 0.2s;"></i>
+        <% end %>
+      </div>
+      <div class="card-body">
+        <% if @recent_work_orders.any? %>
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>Cliente</th>
+                  <th>Veículo</th>
+                  <th>Status</th>
+                  <th>Prioridade</th>
+                  <th>Data</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @recent_work_orders.each do |work_order| %>
+                  <tr>
+                    <td><%= work_order.customer.name %></td>
+                    <td><%= work_order.vehicle.full_description %></td>
+                    <td>
+                      <span class="badge bg-<%= work_order.status == 'pending' ? 'warning' : work_order.status == 'in_progress' ? 'info' : work_order.status == 'completed' ? 'success' : 'danger' %>">
+                        <%= work_order.status.humanize %>
+                      </span>
+                    </td>
+                    <td>
+                      <span class="badge bg-<%= work_order.priority == 'low' ? 'secondary' : work_order.priority == 'normal' ? 'primary' : work_order.priority == 'high' ? 'warning' : 'danger' %>">
+                        <%= work_order.priority.humanize %>
+                      </span>
+                    </td>
+                    <td><%= work_order.created_at.strftime('%d/%m') %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        <% else %>
+          <div class="text-center text-muted py-4">
+            <i class="fas fa-wrench fa-3x mb-3"></i>
+            <p class="mb-3">Nenhuma ordem de serviço encontrada</p>
+            <%= link_to new_work_order_path, class: "btn btn-success btn-sm" do %>
+              <i class="fas fa-plus me-1"></i>
+              Criar primeira ordem
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+      <div class="card-footer">
+        <%= link_to "Ver todas as ordens", work_orders_path, class: "btn btn-success btn-sm" %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Departamentos e Fluxo de Veículos -->
+<% if @departments_with_vehicles.any? %>
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header bg-info text-white">
+          <h5 class="mb-0">
+            <i class="fas fa-building"></i>
+            Fluxo de Veículos por Departamento
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <% @departments_with_vehicles.each do |dept_data| %>
+              <div class="col-md-3">
+                <div class="card border-info">
+                  <div class="card-body text-center">
+                    <h6 class="card-title"><%= dept_data[:name] %></h6>
+                    <h4 class="text-info"><%= dept_data[:current_vehicles] %></h4>
+                    <p class="text-muted mb-0">veículos</p>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+        <div class="card-footer">
+          <%= link_to "Gerenciar departamentos", departments_path, class: "btn btn-info btn-sm" %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<style>
+.hover-opacity-100:hover {
+  opacity: 1 !important;
+}
+</style> 

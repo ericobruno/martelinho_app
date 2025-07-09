@@ -1,0 +1,25 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  vehicle: one
+  user: one
+  quote: one
+  total_amount_cents: 50000
+  total_amount_currency: 'BRL'
+  status: 'pending'
+  priority: 'normal'
+  started_at: <%= 1.day.ago %>
+  completed_at:
+  notes: "Ordem de serviço para pintura completa"
+
+two:
+  vehicle: two
+  user: two
+  quote: two
+  total_amount_cents: 75000
+  total_amount_currency: 'BRL'
+  status: 'in_progress'
+  priority: 'high'
+  started_at: <%= 2.days.ago %>
+  completed_at:
+  notes: "Ordem de serviço para reparo de funilaria"

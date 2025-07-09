@@ -1,0 +1,77 @@
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="d-flex justify-content-between align-items-center">
+      <h1 class="h2 mb-0">
+        <i class="fas fa-plus text-primary"></i>
+        Nova Marca de Veículo
+      </h1>
+      <%= link_to "Voltar", vehicle_brands_path, class: "btn btn-secondary" %>
+    </div>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <%= form_with model: @vehicle_brand, local: true, class: "needs-validation", novalidate: true do |form| %>
+      <% if @vehicle_brand.errors.any? %>
+        <div class="alert alert-danger mb-4">
+          <h6><i class="fas fa-exclamation-triangle"></i> Erro ao salvar marca de veículo:</h6>
+          <ul class="mb-0">
+            <% @vehicle_brand.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="fas fa-info-circle"></i>
+            Informações da Marca
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-8">
+              <%= form.label :name, "Nome da Marca *", class: "form-label" %>
+              <%= form.text_field :name, class: "form-control", 
+                  placeholder: "Ex: Toyota, Volkswagen, Ford, Chevrolet...", required: true %>
+              <div class="invalid-feedback">
+                Por favor, informe o nome da marca.
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <%= form.label :active, "Status *", class: "form-label" %>
+              <%= form.select :active, 
+                  options_for_select([
+                    ['Ativa', true],
+                    ['Inativa', false]
+                  ], @vehicle_brand.active),
+                  {}, { class: "form-select", required: true } %>
+            </div>
+
+            <div class="col-md-12">
+              <%= form.label :country, "País de Origem", class: "form-label" %>
+              <%= form.text_field :country, class: "form-control", 
+                  placeholder: "Ex: Brasil, Japão, Alemanha, Estados Unidos..." %>
+              <div class="form-text">
+                País onde a marca foi fundada (opcional).
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mt-4">
+        <div class="col-12">
+          <div class="d-flex gap-2">
+            <%= form.submit "Criar Marca de Veículo", class: "btn btn-primary" %>
+            <%= link_to "Cancelar", vehicle_brands_path, class: "btn btn-outline-secondary" %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div> 

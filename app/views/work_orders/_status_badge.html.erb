@@ -1,0 +1,12 @@
+<% case work_order.status %>
+<% when 'pending' %>
+  <span class="badge bg-warning text-dark">Pendente</span>
+<% when 'in_progress' %>
+  <span class="badge bg-primary">Em Andamento</span>
+<% when 'completed' %>
+  <span class="badge bg-success">Concluída</span>
+<% when 'cancelled' %>
+  <span class="badge bg-danger">Cancelada</span>
+<% else %>
+  <span class="badge bg-light text-dark"><%= work_order.status.capitalize %></span>
+<% end %> 

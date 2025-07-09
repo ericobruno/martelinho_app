@@ -1,0 +1,305 @@
+<div id="work_order_details">
+  <div class="row">
+    <!-- Work Order Information -->
+    <div class="col-lg-8">
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="fas fa-tools"></i>
+            Informações da Ordem de Serviço
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <h6 class="text-muted mb-1">Cliente</h6>
+              <p class="mb-3">
+                <%= link_to work_order.customer.name, customer_path(work_order.customer), 
+                    class: "text-decoration-none fw-bold" %>
+              </p>
+              
+              <% if work_order.vehicle %>
+                <h6 class="text-muted mb-1">Veículo</h6>
+                <p class="mb-3">
+                  <%= link_to "#{work_order.vehicle.license_plate} - #{work_order.vehicle.vehicle_brand.name} #{work_order.vehicle.vehicle_model.name}", 
+                      vehicle_path(work_order.vehicle), class: "text-decoration-none fw-bold" %>
+                </p>
+              <% end %>
+              
+              <h6 class="text-muted mb-1">Data de Criação</h6>
+              <p class="mb-0"><%= work_order.created_at.strftime("%d/%m/%Y às %H:%M") %></p>
+            </div>
+            
+            <div class="col-md-6">
+              <h6 class="text-muted mb-1">Status</h6>
+              <p class="mb-3">
+                <%= render "work_orders/status_badge", work_order: work_order %>
+              </p>
+              
+              <h6 class="text-muted mb-1">Valor Total</h6>
+              <p class="mb-3 fs-4 fw-bold text-primary">
+                R$ <%= number_with_delimiter(work_order.total_price_cents / 100.0, delimiter: '.', separator: ',') %>
+              </p>
+              
+              <% if work_order.department %>
+                <h6 class="text-muted mb-1">Departamento</h6>
+                <p class="mb-3">
+                  <span class="badge bg-info fs-6"><%= work_order.department.name %></span>
+                </p>
+              <% end %>
+              
+              <% if work_order.status == 'pending' %>
+                <%= link_to start_work_order_path(work_order), method: :patch, 
+                    confirm: "Iniciar esta ordem de serviço?", 
+                    class: "btn btn-success" do %>
+                  <i class="fas fa-play"></i> Iniciar
+                <% end %>
+              <% elsif work_order.status == 'in_progress' %>
+                <%= link_to complete_work_order_path(work_order), method: :patch, 
+                    confirm: "Concluir esta ordem de serviço?", 
+                    class: "btn btn-success" do %>
+                  <i class="fas fa-check"></i> Concluir
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+          
+          <% if work_order.description.present? %>
+            <hr>
+            <h6 class="text-muted mb-1">Descrição</h6>
+            <p class="mb-0"><%= simple_format(work_order.description) %></p>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Work Order Items -->
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="fas fa-list"></i>
+            Itens da Ordem de Serviço
+          </h5>
+        </div>
+        <div class="card-body">
+          <% if work_order.work_order_items.any? %>
+            <!-- Desktop Table View -->
+            <div class="d-none d-md-block">
+              <div class="table-responsive">
+                <table class="table table-sm">
+                  <thead class="table-light">
+                    <tr>
+                      <th scope="col">Serviço</th>
+                      <th scope="col" class="text-center">Qtd</th>
+                      <th scope="col" class="text-end">Valor Unit.</th>
+                      <th scope="col" class="text-end">Total</th>
+                      <th scope="col" class="text-center">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% work_order.work_order_items.each do |item| %>
+                      <tr>
+                        <td><%= item.service_type.name %></td>
+                        <td class="text-center"><%= item.quantity %></td>
+                        <td class="text-end">
+                          R$ <%= number_with_delimiter(item.unit_price_cents / 100.0, delimiter: '.', separator: ',') %>
+                        </td>
+                        <td class="text-end fw-bold">
+                          R$ <%= number_with_delimiter(item.total_price_cents / 100.0, delimiter: '.', separator: ',') %>
+                        </td>
+                        <td class="text-center">
+                          <% if item.completed? %>
+                            <span class="badge bg-success">Concluído</span>
+                          <% else %>
+                            <span class="badge bg-warning text-dark">Pendente</span>
+                          <% end %>
+                        </td>
+                      </tr>
+                    <% end %>
+                  </tbody>
+                  <tfoot class="table-light">
+                    <tr>
+                      <th colspan="3" class="text-end">Total Geral:</th>
+                      <th class="text-end fs-5">
+                        R$ <%= number_with_delimiter(work_order.total_price_cents / 100.0, delimiter: '.', separator: ',') %>
+                      </th>
+                      <th></th>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+
+            <!-- Mobile Card View -->
+            <div class="d-md-none">
+              <% work_order.work_order_items.each do |item| %>
+                <div class="card mb-2">
+                  <div class="card-body py-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div>
+                        <strong><%= item.service_type.name %></strong>
+                        <br>
+                        <small class="text-muted">Qtd: <%= item.quantity %></small>
+                      </div>
+                      <div class="text-end">
+                        <div class="fw-bold">
+                          R$ <%= number_with_delimiter(item.total_price_cents / 100.0, delimiter: '.', separator: ',') %>
+                        </div>
+                        <small class="text-muted">
+                          R$ <%= number_with_delimiter(item.unit_price_cents / 100.0, delimiter: '.', separator: ',') %> cada
+                        </small>
+                        <br>
+                        <% if item.completed? %>
+                          <span class="badge bg-success">Concluído</span>
+                        <% else %>
+                          <span class="badge bg-warning text-dark">Pendente</span>
+                        <% end %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+              
+              <div class="card bg-light">
+                <div class="card-body py-2">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <strong>Total Geral:</strong>
+                    <strong class="fs-5 text-primary">
+                      R$ <%= number_with_delimiter(work_order.total_price_cents / 100.0, delimiter: '.', separator: ',') %>
+                    </strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% else %>
+            <div class="text-center py-4">
+              <i class="fas fa-list fa-2x text-muted mb-3"></i>
+              <h6 class="text-muted">Nenhum item adicionado</h6>
+              <p class="text-muted">Edite a ordem de serviço para adicionar itens.</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Vehicle Status History -->
+      <% if work_order.vehicle_statuses.any? %>
+        <div class="card mt-4">
+          <div class="card-header">
+            <h5 class="mb-0">
+              <i class="fas fa-history"></i>
+              Histórico de Status do Veículo
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="timeline">
+              <% work_order.vehicle_statuses.each do |status| %>
+                <div class="timeline-item">
+                  <div class="timeline-marker"></div>
+                  <div class="timeline-content">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div>
+                        <strong><%= status.department.name %></strong>
+                        <br>
+                        <small class="text-muted"><%= status.notes %></small>
+                      </div>
+                      <div class="text-end">
+                        <small class="text-muted">
+                          <%= status.created_at.strftime("%d/%m/%Y %H:%M") %>
+                        </small>
+                        <br>
+                        <small class="text-muted">
+                          <%= status.user.name %>
+                        </small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Actions Sidebar -->
+    <div class="col-lg-4">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="fas fa-cogs"></i>
+            Ações
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="d-grid gap-2">
+            <%= link_to edit_work_order_path(work_order), class: "btn btn-outline-primary" do %>
+              <i class="fas fa-edit"></i> Editar Ordem
+            <% end %>
+            
+            <% if work_order.status == 'pending' %>
+              <%= link_to start_work_order_path(work_order), method: :patch, 
+                  confirm: "Iniciar esta ordem de serviço?", class: "btn btn-outline-success" do %>
+                <i class="fas fa-play"></i> Iniciar
+              <% end %>
+            <% end %>
+            
+            <% if work_order.status == 'in_progress' %>
+              <%= link_to complete_work_order_path(work_order), method: :patch, 
+                  confirm: "Concluir esta ordem de serviço?", class: "btn btn-outline-success" do %>
+                <i class="fas fa-check"></i> Concluir
+              <% end %>
+            <% end %>
+            
+            <% if work_order.status == 'pending' || work_order.status == 'in_progress' %>
+              <%= link_to cancel_work_order_path(work_order), method: :patch, 
+                  confirm: "Cancelar esta ordem de serviço?", class: "btn btn-outline-warning" do %>
+                <i class="fas fa-times"></i> Cancelar
+              <% end %>
+            <% end %>
+            
+            <hr>
+            
+            <%= link_to work_order_path(work_order), method: :delete, 
+                confirm: "Tem certeza que deseja excluir esta ordem de serviço?", 
+                class: "btn btn-outline-danger" do %>
+              <i class="fas fa-trash"></i> Excluir
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .timeline {
+    position: relative;
+    padding-left: 30px;
+  }
+  
+  .timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+  }
+  
+  .timeline-marker {
+    position: absolute;
+    left: -35px;
+    top: 5px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #007bff;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 2px #007bff;
+  }
+  
+  .timeline-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: -30px;
+    top: 15px;
+    width: 2px;
+    height: calc(100% + 5px);
+    background-color: #dee2e6;
+  }
+</style> 

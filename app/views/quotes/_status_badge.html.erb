@@ -1,0 +1,12 @@
+<% case quote.status %>
+<% when 'pending' %>
+  <span class="badge bg-warning text-dark">Pendente</span>
+<% when 'approved' %>
+  <span class="badge bg-success">Aprovado</span>
+<% when 'rejected' %>
+  <span class="badge bg-danger">Rejeitado</span>
+<% when 'expired' %>
+  <span class="badge bg-secondary">Expirado</span>
+<% else %>
+  <span class="badge bg-light text-dark"><%= quote.status.capitalize %></span>
+<% end %> 

@@ -1,0 +1,16 @@
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="d-flex justify-content-between align-items-center">
+      <h1 class="h2 mb-0">
+        <i class="fas fa-file-invoice-dollar text-primary"></i>
+        Orçamento #<%= @quote.id %>
+      </h1>
+      <div>
+        <%= link_to "Editar", edit_quote_path(@quote), class: "btn btn-primary me-2" %>
+        <%= link_to "Voltar", quotes_path, class: "btn btn-secondary" %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%= render "quotes/details", quote: @quote %> 

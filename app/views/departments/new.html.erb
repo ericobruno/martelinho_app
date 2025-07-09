@@ -1,0 +1,77 @@
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="d-flex justify-content-between align-items-center">
+      <h1 class="h2 mb-0">
+        <i class="fas fa-plus text-primary"></i>
+        Novo Departamento
+      </h1>
+      <%= link_to "Voltar", departments_path, class: "btn btn-secondary" %>
+    </div>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <%= form_with model: @department, local: true, class: "needs-validation", novalidate: true do |form| %>
+      <% if @department.errors.any? %>
+        <div class="alert alert-danger mb-4">
+          <h6><i class="fas fa-exclamation-triangle"></i> Erro ao salvar departamento:</h6>
+          <ul class="mb-0">
+            <% @department.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="fas fa-info-circle"></i>
+            Informações do Departamento
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-8">
+              <%= form.label :name, "Nome do Departamento *", class: "form-label" %>
+              <%= form.text_field :name, class: "form-control", 
+                  placeholder: "Ex: Mecânica, Pintura, Funilaria...", required: true %>
+              <div class="invalid-feedback">
+                Por favor, informe o nome do departamento.
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <%= form.label :active, "Status *", class: "form-label" %>
+              <%= form.select :active, 
+                  options_for_select([
+                    ['Ativo', true],
+                    ['Inativo', false]
+                  ], @department.active),
+                  {}, { class: "form-select", required: true } %>
+            </div>
+
+            <div class="col-12">
+              <%= form.label :description, "Descrição", class: "form-label" %>
+              <%= form.text_area :description, class: "form-control", rows: 4,
+                  placeholder: "Descreva as responsabilidades e funções deste departamento..." %>
+              <div class="form-text">
+                Informações adicionais sobre este departamento (opcional).
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mt-4">
+        <div class="col-12">
+          <div class="d-flex gap-2">
+            <%= form.submit "Criar Departamento", class: "btn btn-primary" %>
+            <%= link_to "Cancelar", departments_path, class: "btn btn-outline-secondary" %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div> 

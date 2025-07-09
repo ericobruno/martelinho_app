@@ -1,0 +1,73 @@
+@import "bootstrap";
+
+/* Form Steps CSS */
+.form-step {
+  display: none;
+  
+  &.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+  }
+}
+
+.step-item {
+  text-align: center;
+  flex: 1;
+  position: relative;
+  
+  &:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 60%;
+    right: -40%;
+    height: 2px;
+    background: #e9ecef;
+    z-index: -1;
+  }
+  
+  &.active:not(:last-child)::after,
+  &.completed:not(:last-child)::after {
+    background: #198754;
+  }
+}
+
+.step-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #e9ecef;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin: 0 auto 8px;
+  transition: all 0.3s ease;
+  
+  .step-item.active & {
+    background-color: #0d6efd;
+    color: white;
+  }
+  
+  .step-item.completed & {
+    background-color: #198754;
+    color: white;
+  }
+}
+
+.required::after {
+  content: ' *';
+  color: #dc3545;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+} 

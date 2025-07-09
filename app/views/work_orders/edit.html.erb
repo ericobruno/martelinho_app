@@ -1,0 +1,376 @@
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="d-flex justify-content-between align-items-center">
+      <h1 class="h2 mb-0">
+        <i class="fas fa-edit text-primary"></i>
+        Editar Ordem de Serviço #<%= @work_order.id %>
+      </h1>
+      <div class="d-flex gap-2">
+        <%= link_to "Ver Ordem", @work_order, class: "btn btn-outline-primary" %>
+        <%= link_to "Voltar", work_orders_path, class: "btn btn-secondary" %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-10">
+    <%= form_with model: @work_order, local: true, class: "needs-validation", novalidate: true do |form| %>
+      <% if @work_order.errors.any? %>
+        <div class="alert alert-danger mb-4">
+          <h6><i class="fas fa-exclamation-triangle"></i> Erro ao salvar ordem de serviço:</h6>
+          <ul class="mb-0">
+            <% @work_order.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <!-- Basic Information -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="fas fa-info-circle"></i>
+            Informações Básicas
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <!-- Vehicle (readonly) -->
+            <div class="col-md-12">
+              <label class="form-label">Veículo</label>
+              <div class="form-control-plaintext border rounded p-2 bg-light">
+                <i class="fas fa-car text-muted me-1"></i>
+                <%= @work_order.vehicle.license_plate %> - <%= @work_order.vehicle.vehicle_brand.name %> <%= @work_order.vehicle.vehicle_model.name %>
+                <br><small class="text-muted">Cliente: <%= @work_order.vehicle.customer.name %></small>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <%= form.label :status, "Status *", class: "form-label" %>
+              <%= form.select :status, 
+                  options_for_select([
+                    ['Pendente', 'pending'],
+                    ['Em Andamento', 'in_progress'],
+                    ['Concluída', 'completed'],
+                    ['Cancelada', 'cancelled']
+                  ], @work_order.status),
+                  {}, { class: "form-select", required: true } %>
+            </div>
+
+            <div class="col-md-4">
+              <%= form.label :priority, "Prioridade *", class: "form-label" %>
+              <%= form.select :priority, 
+                  options_for_select([
+                    ['Baixa', 'low'],
+                    ['Normal', 'normal'],
+                    ['Alta', 'high'],
+                    ['Urgente', 'urgent']
+                  ], @work_order.priority),
+                  {}, { class: "form-select", required: true } %>
+            </div>
+
+            <div class="col-md-4">
+              <%= form.label :quote_id, "Orçamento", class: "form-label" %>
+              <% if @work_order.quote %>
+                <div class="form-control-plaintext border rounded p-2 bg-light">
+                  <%= link_to "Orçamento ##{@work_order.quote.id}", @work_order.quote, 
+                      class: "text-decoration-none", target: "_blank" %>
+                </div>
+              <% else %>
+                <div class="form-control-plaintext border rounded p-2 bg-light text-muted">
+                  Nenhum orçamento vinculado
+                </div>
+              <% end %>
+            </div>
+
+            <% if @work_order.started_at %>
+              <div class="col-md-6">
+                <%= form.label :started_at, "Data de Início", class: "form-label" %>
+                <%= form.datetime_local_field :started_at, 
+                    value: @work_order.started_at&.strftime("%Y-%m-%dT%H:%M"),
+                    class: "form-control" %>
+              </div>
+            <% end %>
+
+            <% if @work_order.completed_at %>
+              <div class="col-md-6">
+                <%= form.label :completed_at, "Data de Conclusão", class: "form-label" %>
+                <%= form.datetime_local_field :completed_at, 
+                    value: @work_order.completed_at&.strftime("%Y-%m-%dT%H:%M"),
+                    class: "form-control" %>
+              </div>
+            <% end %>
+
+            <div class="col-12">
+              <%= form.label :notes, "Observações", class: "form-label" %>
+              <%= form.text_area :notes, class: "form-control", rows: 3, 
+                  placeholder: "Observações sobre a ordem de serviço..." %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Work Order Items -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+              <i class="fas fa-list"></i>
+              Itens da Ordem de Serviço
+            </h5>
+            <button type="button" class="btn btn-sm btn-outline-primary" id="add-item-btn">
+              <i class="fas fa-plus"></i> Adicionar Item
+            </button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div id="work-order-items">
+            <%= form.fields_for :work_order_items do |item_form| %>
+              <div class="work-order-item border rounded p-3 mb-3">
+                <%= item_form.hidden_field :id %>
+                <%= item_form.hidden_field :_destroy, value: false, class: "destroy-field" %>
+                
+                <div class="row g-3 align-items-center">
+                  <div class="col-md-4">
+                    <%= item_form.label :service_type_id, "Serviço *", class: "form-label" %>
+                    <%= item_form.collection_select :service_type_id, ServiceType.active, :id, :name_with_price,
+                        { selected: item_form.object.service_type_id },
+                        { class: "form-select service-select", required: true } %>
+                  </div>
+                  
+                  <div class="col-md-2">
+                    <%= item_form.label :quantity, "Qtd *", class: "form-label" %>
+                    <%= item_form.number_field :quantity, class: "form-control quantity-input",
+                        min: 1, required: true %>
+                  </div>
+                  
+                  <div class="col-md-2">
+                    <%= item_form.label :unit_price_cents, "Valor Unit. *", class: "form-label" %>
+                    <%= item_form.number_field :unit_price_cents, class: "form-control unit-price-input",
+                        value: item_form.object.unit_price_cents ? (item_form.object.unit_price_cents / 100.0) : nil,
+                        min: 0, step: 0.01, required: true %>
+                  </div>
+                  
+                  <div class="col-md-2">
+                    <label class="form-label">Total</label>
+                    <input type="text" class="form-control total-price" readonly>
+                  </div>
+                  
+                  <div class="col-md-2">
+                    <%= item_form.label :description, "Descrição", class: "form-label" %>
+                    <%= item_form.text_field :description, class: "form-control",
+                        placeholder: "Observações" %>
+                  </div>
+                  
+                  <div class="col-md-12">
+                    <button type="button" class="btn btn-outline-danger btn-sm remove-item-btn float-end">
+                      <i class="fas fa-trash"></i> Remover
+                    </button>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+          <div id="work-order-total" class="text-end mt-3">
+            <h5>Total: <span class="text-primary">R$ 0,00</span></h5>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="row">
+        <div class="col-12">
+          <div class="d-flex gap-2">
+            <%= form.submit "Salvar Alterações", class: "btn btn-primary" %>
+            <%= link_to "Cancelar", @work_order, class: "btn btn-outline-secondary" %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- Work Order Item Template (hidden) -->
+<template id="work-order-item-template">
+  <div class="work-order-item border rounded p-3 mb-3">
+    <div class="row g-3 align-items-center">
+      <div class="col-md-4">
+        <label class="form-label">Serviço *</label>
+        <select class="form-select service-select" name="work_order[work_order_items_attributes][NEW_RECORD][service_type_id]" required>
+          <option value="">Selecione um serviço</option>
+          <% ServiceType.active.each do |service| %>
+            <option value="<%= service.id %>" data-price="<%= service.default_price_cents %>">
+              <%= service.name %> - R$ <%= number_with_delimiter(service.default_price_cents / 100.0, delimiter: '.', separator: ',') %>
+            </option>
+          <% end %>
+        </select>
+      </div>
+      
+      <div class="col-md-2">
+        <label class="form-label">Qtd *</label>
+        <input type="number" class="form-control quantity-input" 
+               name="work_order[work_order_items_attributes][NEW_RECORD][quantity]" 
+               min="1" value="1" required>
+      </div>
+      
+      <div class="col-md-2">
+        <label class="form-label">Valor Unit. *</label>
+        <input type="number" class="form-control unit-price-input" 
+               name="work_order[work_order_items_attributes][NEW_RECORD][unit_price_cents]" 
+               min="0" step="0.01" required>
+      </div>
+      
+      <div class="col-md-2">
+        <label class="form-label">Total</label>
+        <input type="text" class="form-control total-price" readonly>
+      </div>
+      
+      <div class="col-md-2">
+        <label class="form-label">Descrição</label>
+        <input type="text" class="form-control" 
+               name="work_order[work_order_items_attributes][NEW_RECORD][description]" 
+               placeholder: "Observações">
+      </div>
+      
+      <div class="col-md-12">
+        <button type="button" class="btn btn-outline-danger btn-sm remove-item-btn float-end">
+          <i class="fas fa-trash"></i> Remover
+        </button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  let itemIndex = Date.now(); // Use timestamp for unique IDs
+  
+  // Add item button
+  document.getElementById('add-item-btn').addEventListener('click', function() {
+    addWorkOrderItem();
+  });
+  
+  // Setup existing items
+  document.querySelectorAll('.work-order-item').forEach(item => {
+    setupItemListeners(item);
+    calculateItemTotal(item);
+  });
+  
+  function addWorkOrderItem() {
+    const template = document.getElementById('work-order-item-template');
+    const clone = template.content.cloneNode(true);
+    
+    // Update field names with unique index
+    const inputs = clone.querySelectorAll('input, select');
+    inputs.forEach(input => {
+      if (input.name) {
+        input.name = input.name.replace('NEW_RECORD', itemIndex);
+      }
+    });
+    
+    const itemElement = clone.querySelector('.work-order-item');
+    setupItemListeners(itemElement);
+    
+    document.getElementById('work-order-items').appendChild(clone);
+    itemIndex++;
+    calculateWorkOrderTotal();
+  }
+  
+  function setupItemListeners(itemElement) {
+    const serviceSelect = itemElement.querySelector('.service-select');
+    const quantityInput = itemElement.querySelector('.quantity-input');
+    const unitPriceInput = itemElement.querySelector('.unit-price-input');
+    const removeBtn = itemElement.querySelector('.remove-item-btn');
+    
+    if (serviceSelect) {
+      serviceSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const price = selectedOption.dataset.price || 0;
+        if (unitPriceInput) {
+          unitPriceInput.value = (price / 100).toFixed(2);
+        }
+        calculateItemTotal(itemElement);
+      });
+    }
+    
+    if (quantityInput) {
+      quantityInput.addEventListener('input', function() {
+        calculateItemTotal(itemElement);
+      });
+    }
+    
+    if (unitPriceInput) {
+      unitPriceInput.addEventListener('input', function() {
+        calculateItemTotal(itemElement);
+      });
+    }
+    
+    if (removeBtn) {
+      removeBtn.addEventListener('click', function() {
+        const destroyField = itemElement.querySelector('.destroy-field');
+        if (destroyField) {
+          // Mark for destruction (existing record)
+          destroyField.value = '1';
+          itemElement.style.display = 'none';
+        } else {
+          // Remove from DOM (new record)
+          itemElement.remove();
+        }
+        calculateWorkOrderTotal();
+      });
+    }
+  }
+  
+  function calculateItemTotal(itemElement) {
+    const quantityInput = itemElement.querySelector('.quantity-input');
+    const unitPriceInput = itemElement.querySelector('.unit-price-input');
+    const totalField = itemElement.querySelector('.total-price');
+    
+    if (!quantityInput || !unitPriceInput || !totalField) return;
+    
+    const quantity = parseFloat(quantityInput.value) || 0;
+    const unitPrice = parseFloat(unitPriceInput.value) || 0;
+    const total = quantity * unitPrice;
+    
+    totalField.value = total.toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    });
+    
+    calculateWorkOrderTotal();
+  }
+  
+  function calculateWorkOrderTotal() {
+    let total = 0;
+    document.querySelectorAll('.work-order-item').forEach(item => {
+      // Skip hidden/destroyed items
+      if (item.style.display === 'none') return;
+      
+      const destroyField = item.querySelector('.destroy-field');
+      if (destroyField && destroyField.value === '1') return;
+      
+      const quantityInput = item.querySelector('.quantity-input');
+      const unitPriceInput = item.querySelector('.unit-price-input');
+      
+      if (quantityInput && unitPriceInput) {
+        const quantity = parseFloat(quantityInput.value) || 0;
+        const unitPrice = parseFloat(unitPriceInput.value) || 0;
+        total += quantity * unitPrice;
+      }
+    });
+    
+    const totalElement = document.querySelector('#work-order-total span');
+    if (totalElement) {
+      totalElement.textContent = total.toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+      });
+    }
+  }
+  
+  // Calculate initial total
+  calculateWorkOrderTotal();
+});
+</script> 

@@ -1,0 +1,23 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  work_order: one
+  service_type: one
+  quantity: 1
+  unit_price_cents: 50000
+  unit_price_currency: 'BRL'
+  total_price_cents: 50000
+  total_price_currency: 'BRL'
+  description: "Pintura completa do veículo"
+  completed: false
+
+two:
+  work_order: two
+  service_type: two
+  quantity: 2
+  unit_price_cents: 25000
+  unit_price_currency: 'BRL'
+  total_price_cents: 50000
+  total_price_currency: 'BRL'
+  description: "Reparo de funilaria em duas partes"
+  completed: false

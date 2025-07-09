@@ -1,0 +1,207 @@
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="d-flex justify-content-between align-items-center">
+      <h1 class="h2 mb-0">
+        <i class="fas fa-building text-primary"></i>
+        <%= @department.name %>
+      </h1>
+      <div class="d-flex gap-2">
+        <%= link_to "Editar", edit_department_path(@department), class: "btn btn-outline-primary" %>
+        <%= link_to "Voltar", departments_path, class: "btn btn-secondary" %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <!-- Department Information -->
+  <div class="col-lg-8">
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="fas fa-info-circle"></i>
+          Informações do Departamento
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label text-muted">Nome</label>
+            <div class="form-control-plaintext fw-bold">
+              <%= @department.name %>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <label class="form-label text-muted">Status</label>
+            <div class="form-control-plaintext">
+              <% if @department.active? %>
+                <span class="badge bg-success">Ativo</span>
+              <% else %>
+                <span class="badge bg-secondary">Inativo</span>
+              <% end %>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <label class="form-label text-muted">Criado em</label>
+            <div class="form-control-plaintext">
+              <%= @department.created_at.strftime("%d/%m/%Y às %H:%M") %>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <label class="form-label text-muted">Última atualização</label>
+            <div class="form-control-plaintext">
+              <%= @department.updated_at.strftime("%d/%m/%Y às %H:%M") %>
+            </div>
+          </div>
+          
+          <% if @department.description.present? %>
+            <div class="col-12">
+              <label class="form-label text-muted">Descrição</label>
+              <div class="form-control-plaintext">
+                <%= simple_format(@department.description) %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Department Users -->
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="fas fa-users"></i>
+          Funcionários do Departamento
+          <span class="badge bg-primary ms-2"><%= @department.users.count %></span>
+        </h5>
+      </div>
+      <div class="card-body">
+        <% if @department.users.any? %>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Nome</th>
+                  <th>Email</th>
+                  <th>Função</th>
+                  <th>Status</th>
+                  <th>Desde</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @department.users.each do |user| %>
+                  <tr>
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <div class="avatar-circle bg-primary text-white me-2">
+                          <%= user.name.first.upcase %>
+                        </div>
+                        <strong><%= user.name %></strong>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="text-muted"><%= user.email %></span>
+                    </td>
+                    <td>
+                      <% if user.role.present? %>
+                        <span class="badge bg-info"><%= user.role.humanize %></span>
+                      <% else %>
+                        <span class="text-muted">-</span>
+                      <% end %>
+                    </td>
+                    <td>
+                      <% if user.active? %>
+                        <span class="badge bg-success">Ativo</span>
+                      <% else %>
+                        <span class="badge bg-secondary">Inativo</span>
+                      <% end %>
+                    </td>
+                    <td>
+                      <small class="text-muted">
+                        <%= user.created_at.strftime("%d/%m/%Y") %>
+                      </small>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        <% else %>
+          <div class="text-center py-4">
+            <i class="fas fa-user-slash fa-2x text-muted mb-3"></i>
+            <p class="text-muted">Nenhum funcionário atribuído a este departamento.</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions Sidebar -->
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="fas fa-cog"></i>
+          Ações
+        </h5>
+      </div>
+      <div class="card-body d-grid gap-2">
+        <%= link_to edit_department_path(@department), class: "btn btn-primary" do %>
+          <i class="fas fa-edit"></i> Editar Departamento
+        <% end %>
+        
+        <%= link_to departments_path, class: "btn btn-outline-secondary" do %>
+          <i class="fas fa-list"></i> Listar Departamentos
+        <% end %>
+        
+        <hr>
+        
+        <%= link_to @department, method: :delete, 
+            class: "btn btn-outline-danger",
+            confirm: "Tem certeza que deseja excluir este departamento? Esta ação não pode ser desfeita." do %>
+          <i class="fas fa-trash"></i> Excluir Departamento
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Statistics Card -->
+    <div class="card mt-4">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="fas fa-chart-bar"></i>
+          Estatísticas
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="row text-center">
+          <div class="col-6">
+            <div class="border-end">
+              <h4 class="text-primary mb-1"><%= @department.users.count %></h4>
+              <small class="text-muted">Funcionários</small>
+            </div>
+          </div>
+          <div class="col-6">
+            <h4 class="text-success mb-1"><%= @department.users.active.count %></h4>
+            <small class="text-muted">Ativos</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.avatar-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
+}
+</style> 

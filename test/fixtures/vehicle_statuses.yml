@@ -1,0 +1,21 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  vehicle: one
+  department: one
+  work_order: one
+  user: one
+  status: MyString
+  entered_at: 2025-07-06 22:22:37
+  exited_at: 2025-07-06 22:22:37
+  notes: MyText
+
+two:
+  vehicle: two
+  department: two
+  work_order: two
+  user: two
+  status: MyString
+  entered_at: 2025-07-06 22:22:37
+  exited_at: 2025-07-06 22:22:37
+  notes: MyText

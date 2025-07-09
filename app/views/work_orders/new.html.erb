@@ -1,0 +1,1094 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="h3 mb-0">
+    <i class="fas fa-tools me-2"></i>
+    Nova Ordem de Serviço
+  </h1>
+  <%= link_to work_orders_path, class: "btn btn-outline-secondary" do %>
+    <i class="fas fa-arrow-left me-1"></i>
+    Voltar
+  <% end %>
+</div>
+
+<div class="progress mb-4" style="height: 8px;">
+  <div class="progress-bar" role="progressbar" style="width: 20%" id="form-progress"></div>
+</div>
+
+<div class="row mb-4">
+  <div class="col">
+    <div class="d-flex justify-content-between">
+      <div class="step-item active" data-step="1">
+        <div class="step-circle">1</div>
+        <small>Cliente</small>
+      </div>
+      <div class="step-item" data-step="2">
+        <div class="step-circle">2</div>
+        <small>Veículo</small>
+      </div>
+      <div class="step-item" data-step="3">
+        <div class="step-circle">3</div>
+        <small>Serviços</small>
+      </div>
+      <div class="step-item" data-step="4">
+        <div class="step-circle">4</div>
+        <small>Revisão</small>
+      </div>
+      <div class="step-item" data-step="5">
+        <div class="step-circle">5</div>
+        <small>Finalizar</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<% if @work_order&.errors&.any? %>
+  <div class="alert alert-danger">
+    <h4>Ops! Encontramos alguns problemas:</h4>
+    <ul class="mb-0">
+      <% @work_order.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
+<div class="card">
+  <div class="card-body">
+    <%= form_with model: @work_order, local: true, id: "work-order-form", class: "needs-validation", novalidate: true do |form| %>
+      
+      <div class="form-step active" id="step-1">
+        <h4 class="mb-4">
+          <i class="fas fa-user me-2"></i>
+          Informações do Cliente
+        </h4>
+        
+        <div class="row mb-3">
+          <div class="col-12">
+            <div class="form-check form-switch mb-3">
+              <input class="form-check-input" type="checkbox" id="existing-customer-toggle">
+              <label class="form-check-label" for="existing-customer-toggle">
+                <strong>Cliente Existente</strong>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div id="existing-customer-section" style="display: none;">
+          <div class="row mb-3">
+            <div class="col-12">
+              <label for="customer_select" class="form-label required">
+                <i class="fas fa-search me-1"></i>
+                Buscar Cliente
+              </label>
+              <select class="form-select searchable-select" id="customer_select" name="work_order[customer_id]">
+                <option value="">Digite para buscar cliente...</option>
+                <% @customers.each do |customer| %>
+                  <option value="<%= customer.id %>" 
+                          data-name="<%= customer.name %>"
+                          data-document="<%= customer.document %>"
+                          data-email="<%= customer.email %>"
+                          data-phone="<%= customer.phone %>"
+                          data-address="<%= customer.address %>">
+                    <%= customer.name %> - <%= customer.document %>
+                  </option>
+                <% end %>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div id="new-customer-section">
+          <div class="row mb-3">
+            <div class="col-md-8">
+              <label for="customer_name" class="form-label required">
+                <i class="fas fa-user me-1"></i>
+                Nome Completo
+              </label>
+              <input type="text" class="form-control" id="customer_name" name="work_order[customer_attributes][name]" required>
+              <div class="invalid-feedback">Por favor, informe o nome do cliente.</div>
+            </div>
+            <div class="col-md-4">
+              <label for="customer_document" class="form-label required">
+                <i class="fas fa-id-card me-1"></i>
+                CPF/CNPJ
+              </label>
+              <input type="text" class="form-control" id="customer_document" name="work_order[customer_attributes][document]" required>
+              <div class="invalid-feedback">Por favor, informe um CPF ou CNPJ válido.</div>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="customer_email" class="form-label">
+                <i class="fas fa-envelope me-1"></i>
+                E-mail
+              </label>
+              <input type="email" class="form-control" id="customer_email" name="work_order[customer_attributes][email]">
+            </div>
+            <div class="col-md-6">
+              <label for="customer_phone" class="form-label required">
+                <i class="fas fa-phone me-1"></i>
+                Telefone
+              </label>
+              <input type="text" class="form-control" id="customer_phone" name="work_order[customer_attributes][phone]" required>
+              <div class="invalid-feedback">Por favor, informe o telefone.</div>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-12">
+              <label for="customer_address" class="form-label">
+                <i class="fas fa-map-marker-alt me-1"></i>
+                Endereço
+              </label>
+              <textarea class="form-control" id="customer_address" name="work_order[customer_attributes][address]" rows="2"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end">
+          <button type="button" class="btn btn-primary btn-lg" onclick="nextStep(2)">
+            Próximo: Veículo
+            <i class="fas fa-arrow-right ms-2"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-step" id="step-2">
+        <h4 class="mb-4">
+          <i class="fas fa-car me-2"></i>
+          Informações do Veículo
+        </h4>
+
+        <div class="row mb-3">
+          <div class="col-12">
+            <div class="form-check form-switch mb-3">
+              <input class="form-check-input" type="checkbox" id="existing-vehicle-toggle">
+              <label class="form-check-label" for="existing-vehicle-toggle">
+                <strong>Veículo Existente</strong>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div id="existing-vehicle-section" style="display: none;">
+          <div class="row mb-3">
+            <div class="col-12">
+              <label for="vehicle_select" class="form-label required">
+                <i class="fas fa-search me-1"></i>
+                Buscar Veículo
+              </label>
+              <select class="form-select searchable-select" id="vehicle_select" name="work_order[vehicle_id]">
+                <option value="">Digite para buscar veículo...</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div id="new-vehicle-section">
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="vehicle_license_plate" class="form-label required">
+                <i class="fas fa-car me-1"></i>
+                Placa do Veículo
+              </label>
+              <input type="text" class="form-control" id="vehicle_license_plate" 
+                     name="work_order[vehicle_attributes][license_plate]" 
+                     placeholder="ABC-1234 ou ABC1234" required>
+              <div id="plate-status" class="form-text"></div>
+              <div class="invalid-feedback">Por favor, informe a placa do veículo.</div>
+            </div>
+            <div class="col-md-6">
+              <label for="vehicle_year" class="form-label required">
+                <i class="fas fa-calendar me-1"></i>
+                Ano
+              </label>
+              <input type="number" class="form-control" id="vehicle_year" 
+                     name="work_order[vehicle_attributes][year]" 
+                     min="1900" max="2030" required>
+              <div class="invalid-feedback">Por favor, informe o ano do veículo.</div>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="vehicle_brand_id" class="form-label required">
+                <i class="fas fa-industry me-1"></i>
+                Marca
+              </label>
+              <select class="form-select searchable-select" id="vehicle_brand_id" 
+                      name="work_order[vehicle_attributes][vehicle_brand_id]" required>
+                <option value="">Selecione ou digite a marca...</option>
+                <% @vehicle_brands.each do |brand| %>
+                  <option value="<%= brand.id %>"><%= brand.name %></option>
+                <% end %>
+              </select>
+              <div class="invalid-feedback">Por favor, selecione a marca do veículo.</div>
+            </div>
+            <div class="col-md-6">
+              <label for="vehicle_model_id" class="form-label required">
+                <i class="fas fa-car-side me-1"></i>
+                Modelo
+              </label>
+              <select class="form-select searchable-select" id="vehicle_model_id" 
+                      name="work_order[vehicle_attributes][vehicle_model_id]" disabled required>
+                <option value="">Primeiro selecione a marca...</option>
+              </select>
+              <div class="invalid-feedback">Por favor, selecione o modelo do veículo.</div>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="vehicle_color" class="form-label required">
+                <i class="fas fa-palette me-1"></i>
+                Cor
+              </label>
+              <input type="text" class="form-control" id="vehicle_color" 
+                     name="work_order[vehicle_attributes][color]" required>
+              <div class="invalid-feedback">Por favor, informe a cor do veículo.</div>
+            </div>
+            <div class="col-md-6">
+              <label for="vehicle_fuel_type" class="form-label">
+                <i class="fas fa-gas-pump me-1"></i>
+                Combustível
+              </label>
+              <select class="form-select" id="vehicle_fuel_type" name="work_order[vehicle_attributes][fuel_type]">
+                <option value="">Selecione...</option>
+                <option value="gasoline">Gasolina</option>
+                <option value="ethanol">Etanol</option>
+                <option value="flex">Flex</option>
+                <option value="diesel">Diesel</option>
+                <option value="electric">Elétrico</option>
+                <option value="hybrid">Híbrido</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between">
+          <button type="button" class="btn btn-outline-secondary btn-lg" onclick="previousStep(1)">
+            <i class="fas fa-arrow-left me-2"></i>
+            Anterior
+          </button>
+          <button type="button" class="btn btn-primary btn-lg" onclick="nextStep(3)">
+            Próximo: Serviços
+            <i class="fas fa-arrow-right ms-2"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-step" id="step-3">
+        <h4 class="mb-4">
+          <i class="fas fa-wrench me-2"></i>
+          Serviços a Executar
+        </h4>
+
+        <div class="row mb-3">
+          <div class="col-12">
+            <label for="work_order_description" class="form-label required">
+              <i class="fas fa-clipboard-list me-1"></i>
+              Descrição do Problema/Serviço
+            </label>
+            <textarea class="form-control" id="work_order_description" name="work_order[description]" 
+                      rows="4" placeholder="Descreva detalhadamente o problema ou serviço a ser executado..." required></textarea>
+            <div class="invalid-feedback">Por favor, descreva o serviço a ser executado.</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h5 class="mb-0">
+              <i class="fas fa-list me-2"></i>
+              Itens da Ordem de Serviço
+            </h5>
+          </div>
+          <div class="card-body">
+            <div id="work-order-items">
+              <!-- Items will be added here dynamically -->
+            </div>
+            
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="service_type_select" class="form-label">
+                  <i class="fas fa-cog me-1"></i>
+                  Tipo de Serviço
+                </label>
+                <select class="form-select searchable-select" id="service_type_select">
+                  <option value="">Selecione um serviço...</option>
+                  <% @service_types.each do |service| %>
+                    <option value="<%= service.id %>" 
+                            data-name="<%= service.name %>"
+                            data-price="<%= service.default_price || 0 %>"
+                            data-description="<%= service.description %>">
+                      <%= service.name %> - R$ <%= number_with_precision(service.default_price || 0, precision: 2) %>
+                    </option>
+                  <% end %>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label for="item_quantity" class="form-label">
+                  <i class="fas fa-hashtag me-1"></i>
+                  Quantidade
+                </label>
+                <input type="number" class="form-control" id="item_quantity" min="1" value="1">
+              </div>
+              <div class="col-md-3">
+                <label for="item_price" class="form-label">
+                  <i class="fas fa-dollar-sign me-1"></i>
+                  Preço Unitário
+                </label>
+                <input type="number" class="form-control" id="item_price" step="0.01" min="0">
+              </div>
+            </div>
+            
+            <button type="button" class="btn btn-success" onclick="addWorkOrderItem()">
+              <i class="fas fa-plus me-1"></i>
+              Adicionar Item
+            </button>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+          <button type="button" class="btn btn-outline-secondary btn-lg" onclick="previousStep(2)">
+            <i class="fas fa-arrow-left me-2"></i>
+            Anterior
+          </button>
+          <button type="button" class="btn btn-primary btn-lg" onclick="nextStep(4)">
+            Próximo: Revisão
+            <i class="fas fa-arrow-right ms-2"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-step" id="step-4">
+        <h4 class="mb-4">
+          <i class="fas fa-eye me-2"></i>
+          Revisão da Ordem de Serviço
+        </h4>
+
+        <div id="work-order-review">
+          <!-- Review content will be populated by JavaScript -->
+        </div>
+
+        <div class="d-flex justify-content-between">
+          <button type="button" class="btn btn-outline-secondary btn-lg" onclick="previousStep(3)">
+            <i class="fas fa-arrow-left me-2"></i>
+            Anterior
+          </button>
+          <button type="button" class="btn btn-primary btn-lg" onclick="nextStep(5)">
+            Finalizar
+            <i class="fas fa-check ms-2"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-step" id="step-5">
+        <h4 class="mb-4">
+          <i class="fas fa-flag-checkered me-2"></i>
+          Finalização
+        </h4>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="work_order_expected_delivery" class="form-label">
+              <i class="fas fa-calendar-alt me-1"></i>
+              Previsão de Entrega
+            </label>
+            <input type="date" class="form-control" id="work_order_expected_delivery" name="work_order[expected_delivery]">
+          </div>
+          <div class="col-md-6">
+            <label for="work_order_status" class="form-label required">
+              <i class="fas fa-info-circle me-1"></i>
+              Status
+            </label>
+            <select class="form-select" id="work_order_status" name="work_order[status]" required>
+              <option value="pending" selected>Pendente</option>
+              <option value="in_progress">Em Andamento</option>
+              <option value="completed">Concluída</option>
+              <option value="cancelled">Cancelada</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="work_order_priority" class="form-label">
+              <i class="fas fa-exclamation-triangle me-1"></i>
+              Prioridade
+            </label>
+            <select class="form-select" id="work_order_priority" name="work_order[priority]">
+              <option value="normal" selected>Normal</option>
+              <option value="high">Alta</option>
+              <option value="urgent">Urgente</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label for="work_order_department_id" class="form-label">
+              <i class="fas fa-building me-1"></i>
+              Departamento Responsável
+            </label>
+            <select class="form-select searchable-select" id="work_order_department_id" name="work_order[department_id]">
+              <option value="">Selecione um departamento...</option>
+              <% @departments.each do |department| %>
+                <option value="<%= department.id %>"><%= department.name %></option>
+              <% end %>
+            </select>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-12">
+            <label for="work_order_notes" class="form-label">
+              <i class="fas fa-sticky-note me-1"></i>
+              Observações
+            </label>
+            <textarea class="form-control" id="work_order_notes" name="work_order[notes]" 
+                      rows="3" placeholder="Observações adicionais..."></textarea>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between">
+          <button type="button" class="btn btn-outline-secondary btn-lg" onclick="previousStep(4)">
+            <i class="fas fa-arrow-left me-2"></i>
+            Anterior
+          </button>
+          <button type="submit" class="btn btn-success btn-lg">
+            <i class="fas fa-save me-2"></i>
+            Salvar Ordem de Serviço
+          </button>
+        </div>
+      </div>
+
+    <% end %>
+  </div>
+</div>
+
+<style>
+.step-item {
+  text-align: center;
+  flex: 1;
+  position: relative;
+}
+
+.step-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 15px;
+  right: -50%;
+  width: 100%;
+  height: 2px;
+  background: #dee2e6;
+  z-index: 1;
+}
+
+.step-item.active:not(:last-child)::after,
+.step-item.completed:not(:last-child)::after {
+  background: #0d6efd;
+}
+
+.step-circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #dee2e6;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin: 0 auto 5px;
+  position: relative;
+  z-index: 2;
+}
+
+.step-item.active .step-circle {
+  background: #0d6efd;
+  color: white;
+}
+
+.step-item.completed .step-circle {
+  background: #198754;
+  color: white;
+}
+
+.form-step {
+  display: none;
+}
+
+.form-step.active {
+  display: block;
+}
+
+.required::after {
+  content: " *";
+  color: #dc3545;
+}
+
+.work-order-item {
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.work-order-item:last-child {
+  margin-bottom: 0;
+}
+
+.searchable-select {
+  min-height: 38px;
+}
+
+#work-order-total {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #198754;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Select2 for searchable selects
+    initializeSearchableSelects();
+    
+    // Initialize form validation
+    initializeValidation();
+    
+    // Initialize vehicle brand/model dependency
+    initializeBrandModelDependency();
+    
+    // Initialize license plate lookup
+    initializeLicensePlateHandler();
+    
+    // Initialize customer and vehicle toggles
+    initializeToggles();
+    
+    // Initialize input masks
+    initializeInputMasks();
+});
+
+function initializeSearchableSelects() {
+    $('.searchable-select').each(function() {
+        if (!$(this).hasClass('select2-hidden-accessible')) {
+            $(this).select2({
+                placeholder: $(this).find('option:first').text(),
+                allowClear: true,
+                language: 'pt-BR',
+                width: '100%',
+                theme: 'bootstrap-5'
+            });
+        }
+    });
+}
+
+function initializeBrandModelDependency() {
+    $('#vehicle_brand_id').on('change', function() {
+        const brandId = $(this).val();
+        const modelSelect = $('#vehicle_model_id');
+        
+        // Reset model select
+        modelSelect.empty().append('<option value="">Carregando modelos...</option>');
+        modelSelect.prop('disabled', true);
+        
+        if (brandId) {
+            // Load models for selected brand
+            $.get('/api/v1/vehicle_models', {
+                brand_id: brandId,
+                limit: 50
+            })
+            .done(function(data) {
+                modelSelect.empty().append('<option value="">Selecione o modelo...</option>');
+                
+                data.forEach(function(model) {
+                    modelSelect.append(`<option value="${model.id}">${model.name}</option>`);
+                });
+                
+                modelSelect.prop('disabled', false);
+                
+                // Reinitialize Select2 for model select
+                if (modelSelect.hasClass('select2-hidden-accessible')) {
+                    modelSelect.select2('destroy');
+                }
+                modelSelect.select2({
+                    placeholder: 'Digite para buscar modelo...',
+                    allowClear: true,
+                    language: 'pt-BR',
+                    width: '100%',
+                    theme: 'bootstrap-5'
+                });
+            })
+            .fail(function() {
+                modelSelect.empty().append('<option value="">Erro ao carregar modelos</option>');
+            });
+        } else {
+            modelSelect.empty().append('<option value="">Primeiro selecione a marca...</option>');
+            modelSelect.prop('disabled', true);
+        }
+    });
+}
+
+function initializeLicensePlateHandler() {
+    let plateTimeout;
+    
+    $('#vehicle_license_plate').on('input', function() {
+        const plate = $(this).val().replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+        const statusDiv = $('#plate-status');
+        
+        // Clear previous timeout
+        clearTimeout(plateTimeout);
+        
+        // Format plate display
+        let formattedPlate = '';
+        if (plate.length <= 7) {
+            // Old format: ABC1234
+            formattedPlate = plate.substring(0, 3);
+            if (plate.length > 3) {
+                formattedPlate += '-' + plate.substring(3);
+            }
+        } else {
+            // Mercosul format: ABC1D23
+            formattedPlate = plate.substring(0, 3);
+            if (plate.length > 3) {
+                formattedPlate += plate.substring(3, 4);
+            }
+            if (plate.length > 4) {
+                formattedPlate += plate.substring(4, 5);
+            }
+            if (plate.length > 5) {
+                formattedPlate += plate.substring(5);
+            }
+        }
+        
+        $(this).val(formattedPlate);
+        
+        // Auto-lookup if plate is complete
+        if (plate.length === 7) {
+            statusDiv.html('<i class="fas fa-spinner fa-spin text-primary"></i> Consultando placa...');
+            
+            plateTimeout = setTimeout(() => {
+                $.get('/api/v1/vehicle_lookup/lookup_by_plate', {
+                    plate: formattedPlate
+                })
+                .done(function(data) {
+                    if (data.found) {
+                        fillVehicleFromPlate(data.vehicle);
+                        statusDiv.html('<i class="fas fa-check text-success"></i> Dados encontrados e preenchidos');
+                    } else {
+                        statusDiv.html('<i class="fas fa-info-circle text-info"></i> Placa não encontrada no sistema');
+                    }
+                })
+                .fail(function() {
+                    statusDiv.html('<i class="fas fa-exclamation-triangle text-warning"></i> Erro na consulta');
+                });
+            }, 1000);
+        } else {
+            statusDiv.empty();
+        }
+    });
+}
+
+function fillVehicleFromPlate(vehicle) {
+    if (vehicle.year) $('#vehicle_year').val(vehicle.year);
+    if (vehicle.color) $('#vehicle_color').val(vehicle.color);
+    if (vehicle.fuel_type) $('#vehicle_fuel_type').val(vehicle.fuel_type);
+    
+    // Set brand if found
+    if (vehicle.brand_name) {
+        const brandOption = $('#vehicle_brand_id option').filter(function() {
+            return $(this).text().toLowerCase().includes(vehicle.brand_name.toLowerCase());
+        });
+        if (brandOption.length) {
+            $('#vehicle_brand_id').val(brandOption.val()).trigger('change');
+            
+            // Wait for models to load then set model
+            setTimeout(() => {
+                if (vehicle.model_name) {
+                    const modelOption = $('#vehicle_model_id option').filter(function() {
+                        return $(this).text().toLowerCase().includes(vehicle.model_name.toLowerCase());
+                    });
+                    if (modelOption.length) {
+                        $('#vehicle_model_id').val(modelOption.val());
+                    }
+                }
+            }, 1000);
+        }
+    }
+}
+
+function initializeToggles() {
+    // Customer toggle
+    $('#existing-customer-toggle').on('change', function() {
+        if ($(this).is(':checked')) {
+            $('#existing-customer-section').show();
+            $('#new-customer-section').hide();
+            $('#customer_select').prop('required', true);
+            $('#new-customer-section input[required]').prop('required', false);
+        } else {
+            $('#existing-customer-section').hide();
+            $('#new-customer-section').show();
+            $('#customer_select').prop('required', false);
+            $('#new-customer-section input[required]').prop('required', true);
+        }
+    });
+    
+    // Vehicle toggle
+    $('#existing-vehicle-toggle').on('change', function() {
+        if ($(this).is(':checked')) {
+            $('#existing-vehicle-section').show();
+            $('#new-vehicle-section').hide();
+            $('#vehicle_select').prop('required', true);
+            $('#new-vehicle-section input[required], #new-vehicle-section select[required]').prop('required', false);
+        } else {
+            $('#existing-vehicle-section').hide();
+            $('#new-vehicle-section').show();
+            $('#vehicle_select').prop('required', false);
+            $('#new-vehicle-section input[required], #new-vehicle-section select[required]').prop('required', true);
+        }
+    });
+    
+    // Customer selection handler
+    $('#customer_select').on('change', function() {
+        const option = $(this).find('option:selected');
+        if (option.val()) {
+            loadCustomerVehicles(option.val());
+        }
+    });
+}
+
+function loadCustomerVehicles(customerId) {
+    const vehicleSelect = $('#vehicle_select');
+    vehicleSelect.empty().append('<option value="">Carregando veículos...</option>');
+    
+    $.get(`/customers/${customerId}/vehicles`)
+    .done(function(data) {
+        vehicleSelect.empty().append('<option value="">Selecione um veículo...</option>');
+        
+        data.forEach(function(vehicle) {
+            vehicleSelect.append(`
+                <option value="${vehicle.id}" 
+                        data-plate="${vehicle.license_plate}"
+                        data-year="${vehicle.year}"
+                        data-brand="${vehicle.brand_name}"
+                        data-model="${vehicle.model_name}"
+                        data-color="${vehicle.color}">
+                    ${vehicle.license_plate} - ${vehicle.brand_name} ${vehicle.model_name} (${vehicle.year})
+                </option>
+            `);
+        });
+    })
+    .fail(function() {
+        vehicleSelect.empty().append('<option value="">Erro ao carregar veículos</option>');
+    });
+}
+
+function initializeInputMasks() {
+    // Document mask
+    $('#customer_document').on('input', function() {
+        let value = $(this).val().replace(/\D/g, '');
+        if (value.length <= 11) {
+            // CPF
+            value = value.replace(/(\d{3})(\d)/, '$1.$2');
+            value = value.replace(/(\d{3})(\d)/, '$1.$2');
+            value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+        } else {
+            // CNPJ
+            value = value.replace(/^(\d{2})(\d)/, '$1.$2');
+            value = value.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
+            value = value.replace(/\.(\d{3})(\d)/, '.$1/$2');
+            value = value.replace(/(\d{4})(\d)/, '$1-$2');
+        }
+        $(this).val(value);
+    });
+    
+    // Phone mask
+    $('#customer_phone').on('input', function() {
+        let value = $(this).val().replace(/\D/g, '');
+        if (value.length <= 10) {
+            value = value.replace(/(\d{2})(\d)/, '($1) $2');
+            value = value.replace(/(\d{4})(\d)/, '$1-$2');
+        } else {
+            value = value.replace(/(\d{2})(\d)/, '($1) $2');
+            value = value.replace(/(\d{5})(\d)/, '$1-$2');
+        }
+        $(this).val(value);
+    });
+}
+
+function initializeValidation() {
+    // Bootstrap validation
+    const forms = document.querySelectorAll('.needs-validation');
+    Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+}
+
+// Step navigation functions
+let currentStep = 1;
+let workItemCount = 0;
+
+// Função para animar transição de step
+function animateStep(stepElement) {
+  stepElement.addClass('animate__animated animate__fadeIn');
+  stepElement.one('animationend', function() {
+    stepElement.removeClass('animate__animated animate__fadeIn');
+  });
+}
+
+function nextStep(stepNumber) {
+  // Validar (lógica existente ou assumir ok)
+  // Hide corrente
+  $(`#step-${currentStep}`).removeClass('active');
+  $(`.step-item[data-step="${currentStep}"]`).addClass('completed');
+  
+  currentStep = stepNumber;
+  const nextElem = $(`#step-${currentStep}`);
+  nextElem.addClass('active');
+  animateStep(nextElem);
+  
+  $('.step-item').removeClass('active');
+  $(`.step-item[data-step="${currentStep}"]`).addClass('active');
+  
+  const progress = (currentStep / 5) * 100;
+  $('#form-progress').css('width', progress + '%');
+
+  if (currentStep === 4) {
+    generateReview(); // se existir
+  }
+}
+
+function previousStep(stepNumber) {
+  $(`#step-${currentStep}`).removeClass('active');
+  $(`.step-item[data-step="${currentStep}"]`).removeClass('completed');
+  currentStep = stepNumber;
+  const prevElem = $(`#step-${currentStep}`);
+  prevElem.addClass('active');
+  animateStep(prevElem);
+  $('.step-item').removeClass('active');
+  $(`.step-item[data-step="${currentStep}"]`).addClass('active');
+  const progress = (currentStep / 5) * 100;
+  $('#form-progress').css('width', progress + '%');
+}
+
+function validateStep(stepNumber) {
+    const step = $(`#step-${stepNumber}`);
+    const requiredFields = step.find('[required]');
+    let valid = true;
+    
+    requiredFields.each(function() {
+        if (!$(this).val() || ($(this).is('select') && $(this).val() === '')) {
+            $(this).addClass('is-invalid');
+            valid = false;
+        } else {
+            $(this).removeClass('is-invalid');
+        }
+    });
+    
+    // Special validation for step 3 (services)
+    if (stepNumber === 3) {
+        if ($('#work-order-items .work-order-item').length === 0) {
+            alert('Por favor, adicione pelo menos um item à ordem de serviço.');
+            valid = false;
+        }
+    }
+    
+    return valid;
+}
+
+function updateProgress(stepNumber) {
+    const progress = (stepNumber / 5) * 100;
+    $('#form-progress').css('width', `${progress}%`);
+}
+
+function updateStepIndicators(activeStep) {
+    $('.step-item').each(function() {
+        const stepNum = parseInt($(this).data('step'));
+        $(this).removeClass('active completed');
+        
+        if (stepNum === activeStep) {
+            $(this).addClass('active');
+        } else if (stepNum < activeStep) {
+            $(this).addClass('completed');
+        }
+    });
+}
+
+// Service management functions
+function addWorkOrderItem() {
+    const serviceSelect = $('#service_type_select');
+    const quantity = parseInt($('#item_quantity').val()) || 1;
+    const price = parseFloat($('#item_price').val()) || 0;
+    
+    if (!serviceSelect.val()) {
+        alert('Por favor, selecione um tipo de serviço.');
+        return;
+    }
+    
+    const option = serviceSelect.find('option:selected');
+    const serviceName = option.data('name');
+    const serviceDescription = option.data('description');
+    const total = quantity * price;
+    
+    const itemHtml = `
+        <div class="work-order-item" data-service-id="${serviceSelect.val()}">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h6 class="mb-1">${serviceName}</h6>
+                    <small class="text-muted">${serviceDescription}</small>
+                    <input type="hidden" name="work_order[work_order_items_attributes][${Date.now()}][service_type_id]" value="${serviceSelect.val()}">
+                    <input type="hidden" name="work_order[work_order_items_attributes][${Date.now()}][description]" value="${serviceName}">
+                    <input type="hidden" name="work_order[work_order_items_attributes][${Date.now()}][quantity]" value="${quantity}">
+                    <input type="hidden" name="work_order[work_order_items_attributes][${Date.now()}][unit_price]" value="${price}">
+                    <input type="hidden" name="work_order[work_order_items_attributes][${Date.now()}][total_price]" value="${total}">
+                </div>
+                <div class="col-md-2 text-center">
+                    <strong>${quantity}</strong>
+                </div>
+                <div class="col-md-2 text-center">
+                    <strong>R$ ${price.toFixed(2)}</strong>
+                </div>
+                <div class="col-md-2 text-center">
+                    <strong class="text-success">R$ ${total.toFixed(2)}</strong>
+                    <br>
+                    <button type="button" class="btn btn-danger btn-sm mt-1" onclick="removeWorkOrderItem(this)">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    $('#work-order-items').append(itemHtml);
+    
+    // Reset form
+    serviceSelect.val('').trigger('change');
+    $('#item_quantity').val(1);
+    $('#item_price').val('');
+    
+    // Update total
+    updateWorkOrderTotal();
+}
+
+function removeWorkOrderItem(button) {
+    $(button).closest('.work-order-item').remove();
+    updateWorkOrderTotal();
+}
+
+function updateWorkOrderTotal() {
+    let total = 0;
+    $('#work-order-items .work-order-item').each(function() {
+        const itemTotal = parseFloat($(this).find('input[name*="[total_price]"]').val()) || 0;
+        total += itemTotal;
+    });
+    
+    $('#work-order-total').text(`R$ ${total.toFixed(2)}`);
+}
+
+function populateReview() {
+    let html = '';
+    
+    // Customer info
+    const customerName = $('#customer_name').val() || $('#customer_select option:selected').data('name') || 'N/A';
+    const customerDocument = $('#customer_document').val() || $('#customer_select option:selected').data('document') || 'N/A';
+    const customerPhone = $('#customer_phone').val() || $('#customer_select option:selected').data('phone') || 'N/A';
+    
+    html += `
+        <div class="card mb-3">
+            <div class="card-header"><h6 class="mb-0">Cliente</h6></div>
+            <div class="card-body">
+                <p><strong>Nome:</strong> ${customerName}</p>
+                <p><strong>Documento:</strong> ${customerDocument}</p>
+                <p><strong>Telefone:</strong> ${customerPhone}</p>
+            </div>
+        </div>
+    `;
+    
+    // Vehicle info
+    const vehiclePlate = $('#vehicle_license_plate').val() || 'N/A';
+    const vehicleYear = $('#vehicle_year').val() || 'N/A';
+    const vehicleBrand = $('#vehicle_brand_id option:selected').text() || 'N/A';
+    const vehicleModel = $('#vehicle_model_id option:selected').text() || 'N/A';
+    const vehicleColor = $('#vehicle_color').val() || 'N/A';
+    
+    html += `
+        <div class="card mb-3">
+            <div class="card-header"><h6 class="mb-0">Veículo</h6></div>
+            <div class="card-body">
+                <p><strong>Placa:</strong> ${vehiclePlate}</p>
+                <p><strong>Ano:</strong> ${vehicleYear}</p>
+                <p><strong>Marca/Modelo:</strong> ${vehicleBrand} ${vehicleModel}</p>
+                <p><strong>Cor:</strong> ${vehicleColor}</p>
+            </div>
+        </div>
+    `;
+    
+    // Services
+    html += `
+        <div class="card mb-3">
+            <div class="card-header">
+                <h6 class="mb-0">Serviços</h6>
+            </div>
+            <div class="card-body">
+                <p><strong>Descrição:</strong> ${$('#work_order_description').val() || 'N/A'}</p>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Qtd</th>
+                                <th>Preço Unit.</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+    `;
+    
+    let grandTotal = 0;
+    $('#work-order-items .work-order-item').each(function() {
+        const serviceName = $(this).find('h6').text();
+        const quantity = $(this).find('input[name*="[quantity]"]').val();
+        const unitPrice = parseFloat($(this).find('input[name*="[unit_price]"]').val());
+        const total = parseFloat($(this).find('input[name*="[total_price]"]').val());
+        grandTotal += total;
+        
+        html += `
+            <tr>
+                <td>${serviceName}</td>
+                <td>${quantity}</td>
+                <td>R$ ${unitPrice.toFixed(2)}</td>
+                <td>R$ ${total.toFixed(2)}</td>
+            </tr>
+        `;
+    });
+    
+    html += `
+                        </tbody>
+                        <tfoot>
+                            <tr class="fw-bold">
+                                <td colspan="3">Total Geral:</td>
+                                <td>R$ ${grandTotal.toFixed(2)}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    $('#work-order-review').html(html);
+}
+
+// Service type change handler
+$('#service_type_select').on('change', function() {
+    const option = $(this).find('option:selected');
+    const price = option.data('price');
+    if (price) {
+        $('#item_price').val(price);
+    }
+});
+</script> 

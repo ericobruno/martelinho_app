@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  vehicle: one
+  user: one
+  total_amount_cents: 999
+  total_amount_currency: 'BRL'
+  status: 'draft'
+  notes: 'Orçamento de teste'
+  expires_at: <%= 30.days.from_now %>
+
+two:
+  vehicle: two
+  user: two
+  total_amount_cents: 1999
+  total_amount_currency: 'BRL'
+  status: 'sent'
+  notes: 'Outro orçamento de teste'
+  expires_at: <%= 30.days.from_now %>

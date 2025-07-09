@@ -1,0 +1,183 @@
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="d-flex justify-content-between align-items-center">
+      <h1 class="h2 mb-0">
+        <i class="fas fa-edit text-primary"></i>
+        Editar Modelo: <%= @vehicle_model.name %>
+      </h1>
+      <div class="d-flex gap-2">
+        <%= link_to "Ver Modelo", @vehicle_model, class: "btn btn-outline-primary" %>
+        <%= link_to "Voltar", vehicle_models_path, class: "btn btn-secondary" %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <%= form_with model: @vehicle_model, local: true, class: "needs-validation", novalidate: true do |form| %>
+      <% if @vehicle_model.errors.any? %>
+        <div class="alert alert-danger mb-4">
+          <h6><i class="fas fa-exclamation-triangle"></i> Erro ao salvar modelo:</h6>
+          <ul class="mb-0">
+            <% @vehicle_model.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="fas fa-info-circle"></i>
+            Informações do Modelo
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <%= form.label :vehicle_brand_id, "Marca do Veículo *", class: "form-label" %>
+              <%= form.select :vehicle_brand_id, 
+                  options_from_collection_for_select(VehicleBrand.active.order(:name), :id, :name, @vehicle_model.vehicle_brand_id),
+                  { prompt: "Selecione a marca" },
+                  { class: "form-select", required: true } %>
+              <div class="invalid-feedback">
+                Por favor, selecione a marca do veículo.
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <%= form.label :name, "Nome do Modelo *", class: "form-label" %>
+              <%= form.text_field :name, class: "form-control", 
+                  placeholder: "Ex: Civic, Corolla, Golf, Onix...", required: true %>
+              <div class="invalid-feedback">
+                Por favor, informe o nome do modelo.
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <%= form.label :initial_year, "Ano Inicial *", class: "form-label" %>
+              <%= form.number_field :initial_year, class: "form-control", 
+                  placeholder: "Ex: 2010", 
+                  min: 1900, 
+                  max: Date.current.year + 1,
+                  required: true %>
+              <div class="invalid-feedback">
+                Por favor, informe o ano inicial do modelo.
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <%= form.label :final_year, "Ano Final", class: "form-label" %>
+              <%= form.number_field :final_year, class: "form-control", 
+                  placeholder: "Ex: 2020 (deixe vazio se ainda é produzido)", 
+                  min: 1900, 
+                  max: Date.current.year + 5 %>
+              <div class="form-text">
+                Deixe vazio se o modelo ainda está sendo produzido.
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <%= form.label :active, "Status *", class: "form-label" %>
+              <%= form.select :active, 
+                  options_for_select([
+                    ['Ativo', true],
+                    ['Inativo', false]
+                  ], @vehicle_model.active),
+                  {}, { class: "form-select", required: true } %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Model Usage Summary -->
+      <div class="card mt-4">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="fas fa-chart-line"></i>
+            Resumo de Uso
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row text-center">
+            <div class="col-md-4">
+              <div class="border-end">
+                <h4 class="text-primary mb-1"><%= @vehicle_model.vehicles.count %></h4>
+                <small class="text-muted">Veículos Cadastrados</small>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="border-end">
+                <h4 class="text-success mb-1"><%= @vehicle_model.vehicles.joins(:quotes).distinct.count %></h4>
+                <small class="text-muted">Veículos com Orçamentos</small>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <h4 class="text-info mb-1"><%= time_ago_in_words(@vehicle_model.created_at) %></h4>
+              <small class="text-muted">Criado há</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <% if @vehicle_model.vehicles.any? %>
+        <div class="alert alert-warning mt-4">
+          <h6><i class="fas fa-exclamation-triangle"></i> Atenção!</h6>
+          <p class="mb-0">
+            Este modelo possui <strong><%= @vehicle_model.vehicles.count %></strong> 
+            veículo<%= @vehicle_model.vehicles.count == 1 ? '' : 's' %> cadastrado<%= @vehicle_model.vehicles.count == 1 ? '' : 's' %>. 
+            Alterações podem afetar o histórico desses veículos.
+          </p>
+        </div>
+      <% end %>
+
+      <div class="row mt-4">
+        <div class="col-12">
+          <div class="d-flex gap-2">
+            <%= form.submit "Salvar Alterações", class: "btn btn-primary" %>
+            <%= link_to "Cancelar", @vehicle_model, class: "btn btn-outline-secondary" %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Form validation
+  const forms = document.querySelectorAll('.needs-validation');
+  
+  forms.forEach(form => {
+    form.addEventListener('submit', function(event) {
+      if (!form.checkValidity()) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      form.classList.add('was-validated');
+    });
+  });
+
+  // Year validation
+  const initialYearField = document.getElementById('vehicle_model_initial_year');
+  const finalYearField = document.getElementById('vehicle_model_final_year');
+  
+  function validateYears() {
+    const initialYear = parseInt(initialYearField.value);
+    const finalYear = parseInt(finalYearField.value);
+    
+    if (initialYear && finalYear && finalYear < initialYear) {
+      finalYearField.setCustomValidity('O ano final deve ser maior que o ano inicial');
+    } else {
+      finalYearField.setCustomValidity('');
+    }
+  }
+  
+  if (initialYearField && finalYearField) {
+    initialYearField.addEventListener('input', validateYears);
+    finalYearField.addEventListener('input', validateYears);
+  }
+});
+</script> 

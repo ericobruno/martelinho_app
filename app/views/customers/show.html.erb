@@ -1,0 +1,131 @@
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="d-flex justify-content-between align-items-center">
+      <h1 class="h2 mb-0">
+        <i class="fas fa-user text-primary"></i>
+        <%= @customer.name %>
+      </h1>
+      <div>
+        <%= link_to "Editar", edit_customer_path(@customer), class: "btn btn-warning me-2" %>
+        <%= link_to "Voltar", customers_path, class: "btn btn-secondary" %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <!-- Informações do Cliente -->
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="fas fa-info-circle"></i>
+          Informações do Cliente
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="row mb-3">
+          <div class="col-sm-4"><strong>Nome:</strong></div>
+          <div class="col-sm-8"><%= @customer.name %></div>
+        </div>
+        
+        <div class="row mb-3">
+          <div class="col-sm-4"><strong>Email:</strong></div>
+          <div class="col-sm-8">
+            <% if @customer.email.present? %>
+              <i class="fas fa-envelope text-muted me-1"></i>
+              <%= @customer.email %>
+            <% else %>
+              <span class="text-muted">Não informado</span>
+            <% end %>
+          </div>
+        </div>
+        
+        <div class="row mb-3">
+          <div class="col-sm-4"><strong>Telefone:</strong></div>
+          <div class="col-sm-8">
+            <% if @customer.phone.present? %>
+              <i class="fas fa-phone text-muted me-1"></i>
+              <%= @customer.phone %>
+            <% else %>
+              <span class="text-muted">Não informado</span>
+            <% end %>
+          </div>
+        </div>
+        
+        <div class="row mb-3">
+          <div class="col-sm-4"><strong>CPF/CNPJ:</strong></div>
+          <div class="col-sm-8">
+            <% if @customer.cpf_cnpj.present? %>
+              <%= @customer.cpf_cnpj %>
+            <% else %>
+              <span class="text-muted">Não informado</span>
+            <% end %>
+          </div>
+        </div>
+        
+        <div class="row">
+          <div class="col-sm-4"><strong>Endereço:</strong></div>
+          <div class="col-sm-8">
+            <% if @customer.address.present? %>
+              <i class="fas fa-map-marker-alt text-muted me-1"></i>
+              <%= @customer.address %>
+            <% else %>
+              <span class="text-muted">Não informado</span>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Veículos do Cliente -->
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+          <i class="fas fa-car"></i>
+          Veículos (<%= @vehicles.count %>)
+        </h5>
+        <%= link_to "Novo Veículo", new_customer_vehicle_path(@customer), class: "btn btn-sm btn-success" %>
+      </div>
+      <div class="card-body">
+        <% if @vehicles.any? %>
+          <% @vehicles.each do |vehicle| %>
+            <div class="border rounded p-3 mb-3">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <h6 class="mb-1">
+                    <%= link_to vehicle_path(vehicle), class: "text-decoration-none" do %>
+                      <%= vehicle.license_plate %>
+                    <% end %>
+                  </h6>
+                  <p class="text-muted mb-1">
+                    <%= vehicle.vehicle_brand.name %> <%= vehicle.vehicle_model.name %>
+                  </p>
+                  <small class="text-muted">
+                    <i class="fas fa-calendar me-1"></i><%= vehicle.year %>
+                    <i class="fas fa-palette ms-2 me-1"></i><%= vehicle.color %>
+                  </small>
+                </div>
+                <div class="btn-group-vertical">
+                  <%= link_to vehicle_path(vehicle), class: "btn btn-sm btn-outline-info", title: "Ver" do %>
+                    <i class="fas fa-eye"></i>
+                  <% end %>
+                  <%= link_to edit_vehicle_path(vehicle), class: "btn btn-sm btn-outline-warning", title: "Editar" do %>
+                    <i class="fas fa-edit"></i>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        <% else %>
+          <div class="text-center py-4">
+            <i class="fas fa-car fa-2x text-muted mb-2"></i>
+            <p class="text-muted mb-0">Nenhum veículo cadastrado</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div> 

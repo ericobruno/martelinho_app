@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  license_plate: "ABC-1234"
+  year: 2020
+  color: "Branco"
+  customer: one
+  vehicle_brand: one
+  vehicle_model: one
+  qr_code: "QR001"
+
+two:
+  license_plate: "XYZ-5678"
+  year: 2019
+  color: "Prata"
+  customer: two
+  vehicle_brand: two
+  vehicle_model: two
+  qr_code: "QR002"

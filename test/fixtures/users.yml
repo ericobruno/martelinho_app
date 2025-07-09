@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  email: "admin@martelinho.com"
+  encrypted_password: "$2a$12$KjByMjQyYjIxYjIxYjIxOe"
+  name: "Administrador"
+  role: 0
+  active: true
+
+two:
+  email: "user@martelinho.com"
+  encrypted_password: "$2a$12$KjByMjQyYjIxYjIxYjIxOe"
+  name: "Usuário Teste"
+  role: 2
+  active: true
