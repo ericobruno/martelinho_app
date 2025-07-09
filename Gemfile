@@ -43,7 +43,7 @@ gem "thruster", require: false
 gem "image_processing", "~> 1.2"
 
 # QR Code generation for vehicle tracking
-gem "rqrcode", "~> 2.0"
+gem "rqrcode", "~> 3.1"
 
 # CPF/CNPJ validation
 gem "cpf_cnpj", "~> 0.5"
