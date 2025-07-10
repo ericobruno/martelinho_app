@@ -1,6 +1,7 @@
 class WorkOrder < ApplicationRecord
   # Money configuration
   monetize :total_amount_cents, allow_nil: true
+  monetize :paid_amount_cents, allow_nil: true
 
   # Enums
   enum :status, {
@@ -8,7 +9,8 @@ class WorkOrder < ApplicationRecord
     in_progress: 'in_progress',
     completed: 'completed',
     cancelled: 'cancelled',
-    on_hold: 'on_hold'
+    on_hold: 'on_hold',
+    aberta: 'aberta'
   }
 
   enum :priority, {
@@ -84,6 +86,10 @@ class WorkOrder < ApplicationRecord
 
   def total_price_cents
     total_amount_cents
+  end
+
+  def paid_amount
+    paid_amount_cents / 100.0 if paid_amount_cents.present?
   end
 
   def completion_percentage

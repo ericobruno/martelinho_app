@@ -42,6 +42,14 @@ class WorkOrderItem < ApplicationRecord
     total_price_cents
   end
 
+  def unit_price
+    unit_price_cents / 100.0 if unit_price_cents.present?
+  end
+
+  def total_price
+    total_price_cents / 100.0 if total_price_cents.present?
+  end
+
   def service_name
     service_type.name
   end

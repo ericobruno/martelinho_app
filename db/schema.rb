@@ -190,6 +190,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_09_142102) do
     t.datetime "completed_at"
     t.text "notes"
     t.text "description"
+    t.integer "paid_amount_cents", default: 0, null: false
+    t.string "paid_amount_currency", default: "BRL", null: false
+    t.datetime "fully_paid_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["completed_at"], name: "index_work_orders_on_completed_at"
