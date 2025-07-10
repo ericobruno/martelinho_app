@@ -30,8 +30,16 @@ class WorkOrderItem < ApplicationRecord
     unit_price.format
   end
 
+  def unit_price_cents
+    unit_price_cents
+  end
+
   def formatted_total_price
     total_price.format
+  end
+
+  def total_price_cents
+    total_price_cents
   end
 
   def service_name

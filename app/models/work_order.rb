@@ -24,12 +24,14 @@ class WorkOrder < ApplicationRecord
   validates :status, presence: true
   validates :priority, presence: true
   validates :total_amount, presence: true, numericality: { greater_than: 0 }
+  validates :description, length: { maximum: 1000 }
   validate :completed_at_must_be_after_started_at
 
   # Associations
   belongs_to :vehicle
   belongs_to :user
   belongs_to :quote, optional: true
+  belongs_to :department, optional: true
   has_many :work_order_items, dependent: :destroy
   has_many :service_types, through: :work_order_items
   has_many :vehicle_statuses, dependent: :destroy
@@ -78,6 +80,10 @@ class WorkOrder < ApplicationRecord
 
   def formatted_total
     total_amount.format
+  end
+
+  def total_price_cents
+    total_amount_cents
   end
 
   def completion_percentage

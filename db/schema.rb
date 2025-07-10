@@ -181,6 +181,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_09_142102) do
     t.bigint "vehicle_id", null: false
     t.bigint "user_id", null: false
     t.bigint "quote_id"
+    t.bigint "department_id"
     t.integer "total_amount_cents", default: 0, null: false
     t.string "total_amount_currency", default: "BRL", null: false
     t.string "status", default: "pending", null: false
@@ -188,9 +189,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_09_142102) do
     t.datetime "started_at"
     t.datetime "completed_at"
     t.text "notes"
+    t.text "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["completed_at"], name: "index_work_orders_on_completed_at"
+    t.index ["department_id"], name: "index_work_orders_on_department_id"
     t.index ["priority"], name: "index_work_orders_on_priority"
     t.index ["quote_id"], name: "index_work_orders_on_quote_id"
     t.index ["started_at"], name: "index_work_orders_on_started_at"
