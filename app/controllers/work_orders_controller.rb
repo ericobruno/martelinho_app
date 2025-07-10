@@ -1,9 +1,9 @@
 class WorkOrdersController < ApplicationController
-  before_action :set_work_order, only: [:show, :edit, :update, :destroy, :start, :complete, :cancel]
+  before_action :set_work_order, only: [:show, :edit, :update, :destroy, :start, :complete, :cancel, :finalize]
   before_action :set_vehicle, only: [:new, :create], if: -> { params[:vehicle_id].present? }
 
   def index
-    @work_orders = WorkOrder.includes(:vehicle, :user).order(created_at: :desc)
+    @work_orders = WorkOrder.includes(:user, :quote, vehicle: [:customer, :vehicle_brand, :vehicle_model], work_order_items: :service_type, vehicle_statuses: [:department, :user]).order(created_at: :desc)
     
     respond_to do |format|
       format.html
@@ -130,6 +130,11 @@ class WorkOrdersController < ApplicationController
   end
 
   def start
+    # Security: Only allow starting if work order can be started
+    unless @work_order.can_be_started?
+      return redirect_to @work_order, alert: 'Esta ordem de serviço não pode ser iniciada no momento.'
+    end
+    
     if @work_order.start!
       respond_to do |format|
         format.html { redirect_to @work_order, notice: 'Ordem de serviço iniciada com sucesso.' }
@@ -151,6 +156,11 @@ class WorkOrdersController < ApplicationController
   end
 
   def complete
+    # Security: Only allow completion if work order can be completed
+    unless @work_order.can_be_completed?
+      return redirect_to @work_order, alert: 'Esta ordem de serviço não pode ser concluída no momento.'
+    end
+    
     if @work_order.complete!
       respond_to do |format|
         format.html { redirect_to @work_order, notice: 'Ordem de serviço concluída com sucesso.' }
@@ -187,6 +197,42 @@ class WorkOrdersController < ApplicationController
         format.html { redirect_to @work_order, alert: 'Não foi possível cancelar a ordem de serviço.' }
         format.turbo_stream do
           render turbo_stream: turbo_stream.update("flash_messages", partial: "shared/flash", locals: { alert: "Não foi possível cancelar a ordem de serviço." })
+        end
+      end
+    end
+  end
+
+  def finalize
+    # Security: Only allow finalization if work order can be finalized
+    unless @work_order.can_be_finalized?
+      return redirect_to @work_order, alert: 'Esta ordem de serviço não pode ser finalizada no momento.'
+    end
+    
+    # Validate payment amount
+    payment_amount = params[:payment_amount]
+    if payment_amount.present?
+      payment_amount = payment_amount.to_f
+      if payment_amount < 0 || payment_amount > @work_order.total_amount.to_f
+        return redirect_to @work_order, alert: 'Valor de pagamento inválido.'
+      end
+    end
+    
+    if @work_order.finalize_and_pay!(payment_amount)
+      respond_to do |format|
+        format.html { redirect_to @work_order, notice: 'Ordem de serviço finalizada com sucesso.' }
+        format.turbo_stream do
+          render turbo_stream: [
+            turbo_stream.replace("work_order_status_#{@work_order.id}", partial: "work_orders/status_badge", locals: { work_order: @work_order }),
+            turbo_stream.replace("work_order_details", partial: "work_orders/details", locals: { work_order: @work_order }),
+            turbo_stream.update("flash_messages", partial: "shared/flash", locals: { notice: "Ordem de serviço finalizada com sucesso." })
+          ]
+        end
+      end
+    else
+      respond_to do |format|
+        format.html { redirect_to @work_order, alert: 'Não foi possível finalizar a ordem de serviço.' }
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.update("flash_messages", partial: "shared/flash", locals: { alert: "Não foi possível finalizar a ordem de serviço." })
         end
       end
     end

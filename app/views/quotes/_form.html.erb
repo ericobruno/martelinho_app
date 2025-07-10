@@ -4,7 +4,7 @@
        data-quote-form-current-step-value="1" 
        data-quote-form-total-steps-value="4">
     
-    <%= form_with model: quote, local: true, id: "quote-form", class: "needs-validation", novalidate: true do |form| %>
+    <%= form_with model: quote, local: true, id: "quote-form", class: "needs-validation", novalidate: true, data: { turbo: true } do |form| %>
       
       <!-- Hidden field to track selected customer for new vehicle creation -->
       <input type="hidden" name="quote[customer_id]" id="selected_customer_id" value="">
@@ -61,12 +61,12 @@
               <div class="invalid-feedback">Por favor, informe o nome do cliente.</div>
             </div>
             <div class="col-md-4">
-              <label for="customer_document" class="form-label required">
+              <label for="customer_document" class="form-label">
                 <i class="fas fa-id-card me-1"></i>
                 CPF/CNPJ
               </label>
               <input type="text" class="form-control" id="customer_document" 
-                     name="quote[vehicle_attributes][customer_attributes][cpf_cnpj]" required data-required="true">
+                     name="quote[vehicle_attributes][customer_attributes][cpf_cnpj]">
               <div class="invalid-feedback">Por favor, informe um CPF ou CNPJ válido.</div>
             </div>
           </div>
@@ -259,6 +259,22 @@
           <i class="fas fa-wrench me-2"></i>
           Serviços a Orçar
         </h4>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="quote_service_value" class="form-label required">
+              <i class="fas fa-dollar-sign me-1"></i>
+              Valor do Serviço
+            </label>
+            <div class="input-group">
+              <span class="input-group-text">R$</span>
+              <%= form.number_field :service_value, class: "form-control", 
+                  min: 0, step: 0.01, required: true, 
+                  placeholder: "0,00" %>
+            </div>
+            <div class="invalid-feedback">Por favor, informe o valor do serviço.</div>
+          </div>
+        </div>
 
         <div class="row mb-3">
           <div class="col-12">

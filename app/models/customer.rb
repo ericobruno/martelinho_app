@@ -3,8 +3,7 @@ class Customer < ApplicationRecord
   validates :name, presence: true, length: { minimum: 2, maximum: 100 }
   validates :email, format: { with: URI::MailTo::EMAIL_REGEXP }, allow_blank: true
   validates :phone, presence: true
-  validates :cpf_cnpj, presence: true, uniqueness: true
-  validate :valid_cpf_cnpj
+  validate :valid_cpf_cnpj, if: -> { cpf_cnpj.present? }
   validate :valid_phone_number
 
   # Associations
@@ -22,10 +21,12 @@ class Customer < ApplicationRecord
 
   # Methods
   def document_type
+    return nil if cpf_cnpj.blank?
     cpf_cnpj.gsub(/\D/, '').length == 11 ? 'CPF' : 'CNPJ'
   end
 
   def formatted_document
+    return nil if cpf_cnpj.blank?
     if document_type == 'CPF'
       CPF.new(cpf_cnpj).formatted
     else
@@ -40,7 +41,12 @@ class Customer < ApplicationRecord
   private
 
   def valid_cpf_cnpj
+    return if cpf_cnpj.blank?
+    
     clean_doc = cpf_cnpj.gsub(/\D/, '')
+    
+    # Se após limpeza não sobrou nada, considerar como vazio
+    return if clean_doc.blank?
     
     if clean_doc.length == 11
       errors.add(:cpf_cnpj, 'CPF inválido') unless CPF.valid?(clean_doc)
@@ -57,7 +63,7 @@ class Customer < ApplicationRecord
   end
 
   def normalize_cpf_cnpj
-    self.cpf_cnpj = cpf_cnpj.gsub(/\D/, '')
+    self.cpf_cnpj = cpf_cnpj.gsub(/\D/, '') if cpf_cnpj.present?
   end
 
   def normalize_phone

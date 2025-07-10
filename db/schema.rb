@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_09_142102) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_09_203154) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -22,7 +22,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_09_142102) do
     t.text "address"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["cpf_cnpj"], name: "index_customers_on_cpf_cnpj", unique: true
+    t.index ["cpf_cnpj"], name: "index_customers_on_cpf_cnpj"
     t.index ["email"], name: "index_customers_on_email"
     t.index ["name"], name: "index_customers_on_name"
   end
@@ -62,6 +62,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_09_142102) do
     t.datetime "expires_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "approved_at"
+    t.integer "service_value_cents", default: 0, null: false
+    t.string "service_value_currency", default: "BRL", null: false
+    t.index ["approved_at"], name: "index_quotes_on_approved_at"
     t.index ["expires_at"], name: "index_quotes_on_expires_at"
     t.index ["status"], name: "index_quotes_on_status"
     t.index ["user_id"], name: "index_quotes_on_user_id"
@@ -154,7 +158,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_09_142102) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["customer_id"], name: "index_vehicles_on_customer_id"
-    t.index ["license_plate"], name: "index_vehicles_on_license_plate", unique: true
+    t.index ["license_plate"], name: "index_vehicles_on_license_plate"
     t.index ["qr_code"], name: "index_vehicles_on_qr_code", unique: true
     t.index ["vehicle_brand_id"], name: "index_vehicles_on_vehicle_brand_id"
     t.index ["vehicle_model_id"], name: "index_vehicles_on_vehicle_model_id"
@@ -190,7 +194,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_09_142102) do
     t.text "notes"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "paid_amount_cents", default: 0, null: false
+    t.string "paid_amount_currency", default: "BRL", null: false
+    t.datetime "fully_paid_at"
     t.index ["completed_at"], name: "index_work_orders_on_completed_at"
+    t.index ["fully_paid_at"], name: "index_work_orders_on_fully_paid_at"
     t.index ["priority"], name: "index_work_orders_on_priority"
     t.index ["quote_id"], name: "index_work_orders_on_quote_id"
     t.index ["started_at"], name: "index_work_orders_on_started_at"

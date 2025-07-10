@@ -3,7 +3,7 @@ class Vehicle < ApplicationRecord
   attr_accessor :custom_model_name
 
   # Validations
-  validates :license_plate, presence: true, uniqueness: { case_sensitive: false }
+  validates :license_plate, presence: true
   validates :year, numericality: { 
     greater_than: 1900, 
     less_than_or_equal_to: Date.current.year + 1 

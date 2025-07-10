@@ -50,7 +50,7 @@
       <div class="card-body">
         <h5 class="card-title">
           <i class="fas fa-clock text-warning"></i>
-          Pendentes
+          Abertas
         </h5>
         <h3 class="text-warning"><%= @stats[:pending_work_orders] %></h3>
         <p class="text-muted mb-0">Ordens aguardando início</p>
@@ -106,11 +106,9 @@
                     <td><%= quote.customer.name %></td>
                     <td><%= quote.vehicle.full_description %></td>
                     <td>
-                      <span class="badge bg-<%= quote.status == 'draft' ? 'secondary' : quote.status == 'sent' ? 'warning' : quote.status == 'approved' ? 'success' : 'danger' %>">
-                        <%= quote.status.humanize %>
-                      </span>
+                      <%= render "quotes/status_badge", quote: quote %>
                     </td>
-                    <td><%= quote.formatted_total %></td>
+                    <td><%= quote.formatted_service_value %></td>
                     <td><%= quote.created_at.strftime('%d/%m') %></td>
                   </tr>
                 <% end %>
@@ -167,14 +165,34 @@
                     <td><%= work_order.customer.name %></td>
                     <td><%= work_order.vehicle.full_description %></td>
                     <td>
-                      <span class="badge bg-<%= work_order.status == 'pending' ? 'warning' : work_order.status == 'in_progress' ? 'info' : work_order.status == 'completed' ? 'success' : 'danger' %>">
-                        <%= work_order.status.humanize %>
-                      </span>
+                      <% case work_order.status %>
+                      <% when 'aberta' %>
+                        <span class="badge bg-warning">Aberta</span>
+                      <% when 'em_andamento' %>
+                        <span class="badge bg-info">Em Andamento</span>
+                      <% when 'concluida' %>
+                        <span class="badge bg-success">Concluída</span>
+                      <% when 'cancelado' %>
+                        <span class="badge bg-danger">Cancelado</span>
+                      <% when 'pago' %>
+                        <span class="badge bg-primary">Pago</span>
+                      <% else %>
+                        <span class="badge bg-secondary"><%= work_order.status&.capitalize || 'Indefinido' %></span>
+                      <% end %>
                     </td>
                     <td>
-                      <span class="badge bg-<%= work_order.priority == 'low' ? 'secondary' : work_order.priority == 'normal' ? 'primary' : work_order.priority == 'high' ? 'warning' : 'danger' %>">
-                        <%= work_order.priority.humanize %>
-                      </span>
+                      <% case work_order.priority %>
+                      <% when 'baixa' %>
+                        <span class="badge bg-secondary">Baixa</span>
+                      <% when 'normal' %>
+                        <span class="badge bg-primary">Normal</span>
+                      <% when 'alta' %>
+                        <span class="badge bg-warning">Alta</span>
+                      <% when 'urgente' %>
+                        <span class="badge bg-danger">Urgente</span>
+                      <% else %>
+                        <span class="badge bg-light text-dark"><%= work_order.priority&.capitalize || 'Normal' %></span>
+                      <% end %>
                     </td>
                     <td><%= work_order.created_at.strftime('%d/%m') %></td>
                   </tr>

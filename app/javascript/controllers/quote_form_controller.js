@@ -259,9 +259,9 @@ export default class extends Controller {
         customerSelect.removeEventListener('change', this.customerSelected.bind(this))
       }
       if (hiddenCustomerId) hiddenCustomerId.value = ''
-      // Make new customer fields required (except email which is now optional)
+      // Make new customer fields required (except email and CPF/CNPJ which are now optional)
       newSection.querySelectorAll('input[data-required], select[data-required], textarea[data-required]').forEach(field => {
-        if (field.id !== 'customer_email') { // Email is no longer required
+        if (field.id !== 'customer_email' && field.id !== 'customer_document') { // Email and CPF/CNPJ are no longer required
           field.setAttribute('required', 'required')
         }
       })

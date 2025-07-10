@@ -43,7 +43,7 @@
                   <% end %>
                 </td>
                 <td>
-                  <strong>R$ <%= number_with_delimiter(work_order.total_price_cents / 100.0, delimiter: '.', separator: ',') %></strong>
+                  <strong><%= work_order.formatted_total %></strong>
                 </td>
                 <td>
                   <%= work_order.created_at.strftime("%d/%m/%Y") %>
@@ -56,18 +56,34 @@
                     <%= link_to edit_work_order_path(work_order), class: "btn btn-sm btn-outline-primary", title: "Editar" do %>
                       <i class="fas fa-edit"></i>
                     <% end %>
-                    <% if work_order.status == 'pending' %>
+                    <% if work_order.aberta? %>
                       <%= link_to start_work_order_path(work_order), method: :patch, 
                           confirm: "Iniciar esta ordem de serviço?", 
                           class: "btn btn-sm btn-outline-success", title: "Iniciar" do %>
                         <i class="fas fa-play"></i>
                       <% end %>
-                    <% elsif work_order.status == 'in_progress' %>
+                    <% elsif work_order.em_andamento? %>
                       <%= link_to complete_work_order_path(work_order), method: :patch, 
                           confirm: "Concluir esta ordem de serviço?", 
                           class: "btn btn-sm btn-outline-success", title: "Concluir" do %>
                         <i class="fas fa-check"></i>
                       <% end %>
+                    <% elsif work_order.can_be_finalized? %>
+                      <button type="button" 
+                              class="btn btn-sm btn-success" 
+                              title="Finalizar e Receber Pagamento"
+                              data-bs-toggle="modal" 
+                              data-bs-target="#finalizeWorkOrderModal"
+                              data-work-order-id="<%= work_order.id %>"
+                              data-customer-name="<%= work_order.customer.name %>"
+                              data-vehicle-info="<%= work_order.vehicle.license_plate %> - <%= work_order.vehicle.vehicle_brand.name %> <%= work_order.vehicle.vehicle_model.name %>"
+                              data-work-order-value="<%= work_order.formatted_total %>"
+                              data-paid-amount="<%= work_order.formatted_paid_amount %>"
+                              data-remaining-amount="<%= work_order.formatted_remaining_amount %>"
+                              data-total-cents="<%= work_order.total_amount_cents %>"
+                              data-paid-cents="<%= work_order.paid_amount_cents %>">
+                        <i class="fas fa-money-bill-wave"></i>
+                      </button>
                     <% end %>
                     <%= link_to work_order_path(work_order), method: :delete, 
                         confirm: "Tem certeza que deseja excluir esta ordem de serviço?", 
@@ -124,12 +140,12 @@
               </div>
             <% end %>
             
-            <div class="mb-3">
-              <small class="text-muted">Total:</small>
-              <div class="fs-5 fw-bold text-primary">
-                R$ <%= number_with_delimiter(work_order.total_price_cents / 100.0, delimiter: '.', separator: ',') %>
+                          <div class="mb-3">
+                <small class="text-muted">Total:</small>
+                <div class="fs-5 fw-bold text-primary">
+                  <%= work_order.formatted_total %>
+                </div>
               </div>
-            </div>
             
             <div class="d-flex justify-content-between align-items-center">
               <small class="text-muted">
@@ -142,18 +158,34 @@
                 <%= link_to edit_work_order_path(work_order), class: "btn btn-sm btn-outline-primary", title: "Editar" do %>
                   <i class="fas fa-edit"></i>
                 <% end %>
-                <% if work_order.status == 'pending' %>
+                <% if work_order.aberta? %>
                   <%= link_to start_work_order_path(work_order), method: :patch, 
                       confirm: "Iniciar esta ordem de serviço?", 
                       class: "btn btn-sm btn-outline-success", title: "Iniciar" do %>
                     <i class="fas fa-play"></i>
                   <% end %>
-                <% elsif work_order.status == 'in_progress' %>
+                <% elsif work_order.em_andamento? %>
                   <%= link_to complete_work_order_path(work_order), method: :patch, 
                       confirm: "Concluir esta ordem de serviço?", 
                       class: "btn btn-sm btn-outline-success", title: "Concluir" do %>
                     <i class="fas fa-check"></i>
                   <% end %>
+                <% elsif work_order.can_be_finalized? %>
+                  <button type="button" 
+                          class="btn btn-sm btn-success" 
+                          title="Finalizar e Receber Pagamento"
+                          data-bs-toggle="modal" 
+                          data-bs-target="#finalizeWorkOrderModal"
+                          data-work-order-id="<%= work_order.id %>"
+                          data-customer-name="<%= work_order.customer.name %>"
+                          data-vehicle-info="<%= work_order.vehicle.license_plate %> - <%= work_order.vehicle.vehicle_brand.name %> <%= work_order.vehicle.vehicle_model.name %>"
+                          data-work-order-value="<%= work_order.formatted_total %>"
+                          data-paid-amount="<%= work_order.formatted_paid_amount %>"
+                          data-remaining-amount="<%= work_order.formatted_remaining_amount %>"
+                          data-total-cents="<%= work_order.total_amount_cents %>"
+                          data-paid-cents="<%= work_order.paid_amount_cents %>">
+                    <i class="fas fa-money-bill-wave"></i>
+                  </button>
                 <% end %>
                 <%= link_to work_order_path(work_order), method: :delete, 
                     confirm: "Tem certeza que deseja excluir esta ordem de serviço?", 

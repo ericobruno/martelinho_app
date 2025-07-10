@@ -33,6 +33,7 @@ Rails.application.routes.draw do
       patch :start
       patch :complete
       patch :cancel
+      patch :finalize
       get :print
     end
     resources :work_order_items, except: [:index, :show]

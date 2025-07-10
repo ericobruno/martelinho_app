@@ -32,6 +32,11 @@
     </div>
     
     <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+      <%= link_to root_path, class: "btn btn-success btn-lg me-md-2" do %>
+        <i class="fas fa-home me-2"></i>
+        Ir para Dashboard
+      <% end %>
+      
       <%= link_to quote_path(quote), class: "btn btn-primary btn-lg me-md-2" do %>
         <i class="fas fa-eye me-2"></i>
         Ver Orçamento

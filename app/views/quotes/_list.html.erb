@@ -1,156 +1,134 @@
-<div id="quotes_list" data-controller="mobile">
-  <% if quotes.any? %>
-    <!-- Desktop Table View -->
-    <div class="d-none d-md-block">
-      <div class="table-responsive">
-        <table class="table table-hover align-middle">
-          <thead class="table-light">
-            <tr>
-              <th scope="col">ID</th>
-              <th scope="col">Cliente</th>
-              <th scope="col">Veículo</th>
-              <th scope="col">Status</th>
-              <th scope="col">Total</th>
-              <th scope="col">Criado em</th>
-              <th scope="col" class="text-center">Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% quotes.each do |quote| %>
-              <tr id="quote_<%= quote.id %>" data-id="<%= quote.id %>" data-type="quote">
-                <td><strong>#<%= quote.id %></strong></td>
-                <td>
-                  <%= link_to quote.customer.name, customer_path(quote.customer), 
-                      class: "text-decoration-none" %>
-                </td>
-                <td>
-                  <% if quote.vehicle %>
-                    <%= link_to "#{quote.vehicle.license_plate} - #{quote.vehicle.vehicle_brand.name} #{quote.vehicle.vehicle_model.name}", 
-                        vehicle_path(quote.vehicle), class: "text-decoration-none" %>
-                  <% else %>
-                    <span class="text-muted">-</span>
-                  <% end %>
-                </td>
-                <td id="quote_status_<%= quote.id %>">
-                  <%= render "quotes/status_badge", quote: quote %>
-                </td>
-                <td>
-                  <strong>R$ <%= number_with_delimiter(quote.total_price_cents / 100.0, delimiter: '.', separator: ',') %></strong>
-                </td>
-                <td>
-                  <%= quote.created_at.strftime("%d/%m/%Y") %>
-                </td>
-                <td class="text-center">
-                  <div class="btn-group" role="group">
-                    <%= link_to quote_path(quote), class: "btn btn-sm btn-outline-info", title: "Ver" do %>
-                      <i class="fas fa-eye"></i>
-                    <% end %>
-                    <%= link_to edit_quote_path(quote), class: "btn btn-sm btn-outline-primary", title: "Editar" do %>
-                      <i class="fas fa-edit"></i>
-                    <% end %>
-                    <% if quote.status == 'approved' %>
-                      <%= link_to new_quote_work_order_path(quote), class: "btn btn-sm btn-outline-success", title: "Criar OS" do %>
-                        <i class="fas fa-tools"></i>
-                      <% end %>
-                    <% end %>
-                    <%= link_to quote_path(quote), method: :delete, 
-                        confirm: "Tem certeza que deseja excluir este orçamento?", 
-                        class: "btn btn-sm btn-outline-danger", title: "Excluir" do %>
-                      <i class="fas fa-trash"></i>
-                    <% end %>
-                  </div>
-                </td>
+<%= turbo_frame_tag "quotes_list" do %>
+  <div id="quotes_list" data-controller="mobile">
+    <% if quotes.any? %>
+      <!-- Desktop Table View -->
+      <div class="d-none d-md-block">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Cliente</th>
+                <th scope="col">Veículo</th>
+                <th scope="col">Status</th>
+                <th scope="col">Total</th>
+                <th scope="col">Criado em</th>
+                <th scope="col" class="text-center">Ações</th>
               </tr>
-            <% end %>
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              <% quotes.each do |quote| %>
+                <tr id="quote_<%= quote.id %>" data-id="<%= quote.id %>" data-type="quote">
+                  <td><strong>#<%= quote.id %></strong></td>
+                  <td>
+                    <%= link_to quote.customer.name, customer_path(quote.customer), 
+                        class: "text-decoration-none" %>
+                  </td>
+                  <td>
+                    <% if quote.vehicle %>
+                      <%= link_to "#{quote.vehicle.license_plate} - #{quote.vehicle.vehicle_brand.name} #{quote.vehicle.vehicle_model.name}", 
+                          vehicle_path(quote.vehicle), class: "text-decoration-none" %>
+                    <% else %>
+                      <span class="text-muted">-</span>
+                    <% end %>
+                  </td>
+                  <td id="quote_status_<%= quote.id %>">
+                    <%= render "quotes/status_badge", quote: quote %>
+                  </td>
+                  <td>
+                    <strong><%= quote.formatted_total %></strong>
+                  </td>
+                  <td>
+                    <%= quote.created_at.strftime("%d/%m/%Y") %>
+                  </td>
+                  <td class="text-center">
+                    <div id="quote_actions_<%= quote.id %>">
+                      <%= render "quotes/actions", quote: quote %>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
 
-    <!-- Mobile Card View -->
-    <div class="d-md-none">
-      <% quotes.each do |quote| %>
-        <div class="card mb-3" id="quote_<%= quote.id %>" data-id="<%= quote.id %>" data-type="quote" data-mobile-target="card">
-          <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-              <h6 class="card-title mb-0">
-                <strong>#<%= quote.id %></strong>
-              </h6>
-              <div id="quote_status_<%= quote.id %>">
-                <%= render "quotes/status_badge", quote: quote %>
-              </div>
-            </div>
-            
-            <div class="mb-2">
-              <small class="text-muted">Cliente:</small>
-              <div>
-                <%= link_to quote.customer.name, customer_path(quote.customer), 
-                    class: "text-decoration-none fw-bold" %>
-              </div>
-            </div>
-            
-            <% if quote.vehicle %>
-              <div class="mb-2">
-                <small class="text-muted">Veículo:</small>
-                <div>
-                  <%= link_to "#{quote.vehicle.license_plate} - #{quote.vehicle.vehicle_brand.name} #{quote.vehicle.vehicle_model.name}", 
-                      vehicle_path(quote.vehicle), class: "text-decoration-none" %>
+      <!-- Mobile Card View -->
+      <div class="d-md-none">
+        <% quotes.each do |quote| %>
+          <div class="card mb-3" id="quote_<%= quote.id %>" data-id="<%= quote.id %>" data-type="quote" data-mobile-target="card">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <h6 class="card-title mb-0">
+                  <strong>#<%= quote.id %></strong>
+                </h6>
+                <div id="quote_status_<%= quote.id %>">
+                  <%= render "quotes/status_badge", quote: quote %>
                 </div>
               </div>
-            <% end %>
-            
-            <div class="mb-3">
-              <small class="text-muted">Total:</small>
-              <div class="fs-5 fw-bold text-primary">
-                R$ <%= number_with_delimiter(quote.total_price_cents / 100.0, delimiter: '.', separator: ',') %>
+              
+              <div class="mb-2">
+                <small class="text-muted">Cliente:</small>
+                <div>
+                  <%= link_to quote.customer.name, customer_path(quote.customer), 
+                      class: "text-decoration-none fw-bold" %>
+                </div>
+              </div>
+              
+              <% if quote.vehicle %>
+                <div class="mb-2">
+                  <small class="text-muted">Veículo:</small>
+                  <div>
+                    <%= link_to "#{quote.vehicle.license_plate} - #{quote.vehicle.vehicle_brand.name} #{quote.vehicle.vehicle_model.name}", 
+                        vehicle_path(quote.vehicle), class: "text-decoration-none" %>
+                  </div>
+                </div>
+              <% end %>
+              
+                              <div class="mb-3">
+                <small class="text-muted">Total:</small>
+                <div class="fs-5 fw-bold text-primary">
+                  <%= quote.formatted_total %>
+                </div>
+              </div>
+              
+              <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted">
+                  <%= quote.created_at.strftime("%d/%m/%Y") %>
+                </small>
+                <div id="quote_actions_<%= quote.id %>">
+                  <%= render "quotes/actions", quote: quote %>
+                </div>
               </div>
             </div>
             
-            <div class="d-flex justify-content-between align-items-center">
-              <small class="text-muted">
-                <%= quote.created_at.strftime("%d/%m/%Y") %>
-              </small>
-              <div class="btn-group" role="group">
-                <%= link_to quote_path(quote), class: "btn btn-sm btn-outline-info", title: "Ver" do %>
-                  <i class="fas fa-eye"></i>
-                <% end %>
-                <%= link_to edit_quote_path(quote), class: "btn btn-sm btn-outline-primary", title: "Editar" do %>
-                  <i class="fas fa-edit"></i>
-                <% end %>
-                <% if quote.status == 'approved' %>
-                  <%= link_to new_quote_work_order_path(quote), class: "btn btn-sm btn-outline-success", title: "Criar OS" do %>
-                    <i class="fas fa-tools"></i>
-                  <% end %>
-                <% end %>
-                <%= link_to quote_path(quote), method: :delete, 
-                    confirm: "Tem certeza que deseja excluir este orçamento?", 
-                    class: "btn btn-sm btn-outline-danger", title: "Excluir" do %>
-                  <i class="fas fa-trash"></i>
-                <% end %>
-              </div>
+            <!-- Quick Actions for Swipe -->
+            <div class="quick-actions">
+              <%= link_to edit_quote_path(quote), class: "btn btn-light btn-sm" do %>
+                <i class="fas fa-edit"></i>
+              <% end %>
+              <%= link_to quote_path(quote), method: :delete, 
+                  confirm: "Tem certeza que deseja excluir este orçamento?", 
+                  class: "btn btn-danger btn-sm" do %>
+                <i class="fas fa-trash"></i>
+              <% end %>
             </div>
           </div>
-          
-          <!-- Quick Actions for Swipe -->
-          <div class="quick-actions">
-            <%= link_to edit_quote_path(quote), class: "btn btn-light btn-sm" do %>
-              <i class="fas fa-edit"></i>
-            <% end %>
-            <%= link_to quote_path(quote), method: :delete, 
-                confirm: "Tem certeza que deseja excluir este orçamento?", 
-                class: "btn btn-danger btn-sm" do %>
-              <i class="fas fa-trash"></i>
-            <% end %>
-          </div>
-        </div>
-      <% end %>
-    </div>
-  <% else %>
-    <div class="text-center py-5">
-      <i class="fas fa-file-invoice-dollar fa-3x text-muted mb-3"></i>
-      <h5 class="text-muted">Nenhum orçamento cadastrado</h5>
-      <p class="text-muted">Clique no botão "Novo Orçamento" para adicionar o primeiro orçamento.</p>
-      <%= link_to "Novo Orçamento", new_quote_path, class: "btn btn-primary" %>
-    </div>
-  <% end %>
-</div> 
+        <% end %>
+      </div>
+    <% else %>
+      <div class="text-center py-5">
+        <i class="fas fa-file-invoice-dollar fa-3x text-muted mb-3"></i>
+        <h5 class="text-muted">Nenhum orçamento encontrado</h5>
+        <p class="text-muted">
+          <% if params.values.any?(&:present?) %>
+            Tente ajustar os filtros para encontrar orçamentos.
+          <% else %>
+            Clique no botão "Novo Orçamento" para adicionar o primeiro orçamento.
+          <% end %>
+        </p>
+        <%= link_to "Novo Orçamento", new_quote_path, class: "btn btn-primary" %>
+      </div>
+    <% end %>
+  </div>
+<% end %> 

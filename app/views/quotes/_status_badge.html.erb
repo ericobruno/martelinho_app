@@ -1,12 +1,16 @@
 <% case quote.status %>
-<% when 'pending' %>
-  <span class="badge bg-warning text-dark">Pendente</span>
-<% when 'approved' %>
+<% when 'aberto' %>
+  <span class="badge bg-primary">Aberto</span>
+<% when 'enviado' %>
+  <span class="badge bg-info">Enviado</span>
+<% when 'aprovado' %>
   <span class="badge bg-success">Aprovado</span>
-<% when 'rejected' %>
+<% when 'rejeitado' %>
   <span class="badge bg-danger">Rejeitado</span>
-<% when 'expired' %>
-  <span class="badge bg-secondary">Expirado</span>
+<% when 'cancelado' %>
+  <span class="badge bg-secondary">Cancelado</span>
+<% when 'expirado' %>
+  <span class="badge bg-dark">Expirado</span>
 <% else %>
-  <span class="badge bg-light text-dark"><%= quote.status.capitalize %></span>
+  <span class="badge bg-light text-dark"><%= quote.status&.capitalize || 'Indefinido' %></span>
 <% end %> 

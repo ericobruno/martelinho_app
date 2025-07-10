@@ -3,13 +3,98 @@
     <div class="d-flex justify-content-between align-items-center">
       <h1 class="h2 mb-0">
         <i class="fas fa-file-invoice-dollar text-primary"></i>
-        Orçamentos
+        Gestão de Orçamentos
       </h1>
-      <%= link_to "Novo Orçamento", new_quote_path, class: "btn btn-primary" %>
+      <%= link_to new_quote_path, class: "btn btn-primary" do %>
+        <i class="fas fa-plus me-1"></i>
+        Novo Orçamento
+      <% end %>
     </div>
   </div>
 </div>
 
+<!-- Filtros -->
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="fas fa-filter"></i>
+          Filtros
+        </h5>
+      </div>
+      <div class="card-body">
+        <%= form_with url: quotes_path, method: :get, local: true, data: { turbo_frame: "quotes_list" }, class: "filter-form" do |form| %>
+          <div class="row g-3">
+            <div class="col-md-3">
+              <%= form.label :customer_name, "Nome do Cliente", class: "form-label" %>
+              <%= form.text_field :customer_name, value: params[:customer_name], class: "form-control", placeholder: "Digite o nome..." %>
+            </div>
+            
+            <div class="col-md-3">
+              <%= form.label :customer_cpf, "CPF/CNPJ do Cliente", class: "form-label" %>
+              <%= form.text_field :customer_cpf, value: params[:customer_cpf], class: "form-control", placeholder: "000.000.000-00" %>
+            </div>
+            
+            <div class="col-md-3">
+              <%= form.label :vehicle_plate, "Placa do Veículo", class: "form-label" %>
+              <%= form.text_field :vehicle_plate, value: params[:vehicle_plate], class: "form-control", placeholder: "ABC-1234" %>
+            </div>
+            
+            <div class="col-md-3">
+              <%= form.label :status, "Status", class: "form-label" %>
+              <%= form.select :status, 
+                  options_for_select([
+                    ['Todos', ''],
+                    ['Aberto', 'aberto'],
+                    ['Enviado', 'enviado'],
+                    ['Aprovado', 'aprovado'],
+                    ['Rejeitado', 'rejeitado'],
+                    ['Cancelado', 'cancelado'],
+                    ['Expirado', 'expirado']
+                  ], params[:status]), 
+                  {}, 
+                  { class: "form-select" } %>
+            </div>
+            
+            <div class="col-md-3">
+              <%= form.label :vehicle_brand, "Marca do Veículo", class: "form-label" %>
+              <%= form.text_field :vehicle_brand, value: params[:vehicle_brand], class: "form-control", placeholder: "Digite a marca..." %>
+            </div>
+            
+            <div class="col-md-3">
+              <%= form.label :vehicle_model, "Modelo do Veículo", class: "form-label" %>
+              <%= form.text_field :vehicle_model, value: params[:vehicle_model], class: "form-control", placeholder: "Digite o modelo..." %>
+            </div>
+            
+            <div class="col-md-3">
+              <%= form.label :date_from, "Data Inicial", class: "form-label" %>
+              <%= form.date_field :date_from, value: params[:date_from], class: "form-control" %>
+            </div>
+            
+            <div class="col-md-3">
+              <%= form.label :date_to, "Data Final", class: "form-label" %>
+              <%= form.date_field :date_to, value: params[:date_to], class: "form-control" %>
+            </div>
+            
+            <div class="col-12">
+              <div class="d-flex gap-2">
+                <%= form.submit "Filtrar", class: "btn btn-primary" %>
+                <%= link_to "Limpar Filtros", quotes_path, class: "btn btn-outline-secondary" %>
+                <span class="text-muted align-self-center">
+                  <i class="fas fa-info-circle me-1"></i>
+                  <%= @quotes.count %> orçamento(s) encontrado(s)
+                </span>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Lista de Orçamentos -->
 <div class="row">
   <div class="col-12">
     <div class="card">
@@ -25,3 +110,8 @@
     </div>
   </div>
 </div> 
+
+<!-- Modal de Aprovação -->
+<%= render "quotes/approve_modal" %>
+
+<!-- JavaScript consolidado no controller modal-manager --> 

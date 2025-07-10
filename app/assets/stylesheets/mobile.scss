@@ -1,0 +1,120 @@
+/* ===========================
+   MOBILE-FIRST RESPONSIVE STYLES
+   Using Bootstrap 5 utility classes
+   =========================== */
+
+/* Touch optimization for mobile devices */
+@media (max-width: 767.98px) {
+  /* Touch-friendly buttons and forms */
+  .btn {
+    min-height: 44px;
+    touch-action: manipulation;
+  }
+  
+  /* Modal improvements for mobile */
+  .modal-dialog {
+    margin: 0.5rem;
+  }
+  
+  .modal-content {
+    border-radius: 0.5rem;
+  }
+  
+  /* Better modal footer on mobile */
+  .modal-footer .btn {
+    min-height: 48px;
+  }
+  
+  /* Table responsiveness */
+  .table-responsive {
+    border: none;
+  }
+  
+  /* Card improvements */
+  .card {
+    margin-bottom: 1rem;
+  }
+  
+  /* Better form controls */
+  .form-control,
+  .form-select {
+    min-height: 44px;
+  }
+  
+  /* Alert improvements */
+  .alert {
+    padding: 0.75rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Tablet optimization */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .modal-dialog {
+    max-width: 90%;
+  }
+  
+  /* Better spacing for tablets */
+  .container-fluid {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Desktop optimization */
+@media (min-width: 992px) {
+  /* Larger modals on desktop */
+  .modal-lg {
+    max-width: 800px;
+  }
+  
+  /* Better button groups */
+  .btn-group .btn {
+    min-height: auto;
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .modal.fade .modal-dialog {
+    transition: none;
+  }
+  
+  .btn {
+    transition: none;
+  }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .btn-sm {
+    padding: 0.375rem 0.75rem;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .modal-content {
+    background-color: var(--bs-dark);
+    color: var(--bs-light);
+  }
+  
+  .alert-info {
+    background-color: var(--bs-info);
+    color: var(--bs-white);
+  }
+}
+
+/* Print optimization */
+@media print {
+  .modal,
+  .btn,
+  .alert {
+    display: none !important;
+  }
+  
+  .container-fluid {
+    width: 100% !important;
+    max-width: none !important;
+  }
+} 

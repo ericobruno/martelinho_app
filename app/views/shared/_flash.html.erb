@@ -7,18 +7,32 @@
 
 <% if alert %>
   <div class="alert alert-danger alert-dismissible fade show" role="alert" id="flash-alert">
-    <%= alert %>
+    <% if alert.include?("\n") %>
+      <% lines = alert.split("\n") %>
+      <strong><%= lines.first %></strong>
+      <% if lines.length > 1 %>
+        <ul class="mb-0 mt-2">
+          <% lines[1..-1].each do |line| %>
+            <% unless line.strip.empty? %>
+              <li><%= line.strip %></li>
+            <% end %>
+          <% end %>
+        </ul>
+      <% end %>
+    <% else %>
+      <%= alert %>
+    <% end %>
     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
   </div>
 <% end %>
 
 <script>
-  // Auto-hide flash messages after 5 seconds
+  // Auto-hide flash messages after 8 seconds (increased for error messages)
   setTimeout(function() {
     const alerts = document.querySelectorAll('.alert');
     alerts.forEach(function(alert) {
       const bsAlert = new bootstrap.Alert(alert);
       bsAlert.close();
     });
-  }, 5000);
+  }, 8000);
 </script> 

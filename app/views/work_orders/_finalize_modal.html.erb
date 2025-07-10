@@ -1,0 +1,119 @@
+<!-- Modal de Finalização da Ordem de Serviço -->
+<div class="modal fade" id="finalizeWorkOrderModal" tabindex="-1" aria-labelledby="finalizeWorkOrderModalLabel" aria-hidden="true"
+     data-controller="modal-manager" 
+     data-modal-manager-type-value="work-order-finalize"
+     data-modal-manager-target="modal"
+     data-action="show.bs.modal->modal-manager#show">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title" id="finalizeWorkOrderModalLabel">
+          <i class="fas fa-money-bill-wave me-2"></i>
+          Finalizar Ordem de Serviço
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-info">
+          <i class="fas fa-info-circle me-2"></i>
+          <strong>Atenção:</strong> Ao finalizar esta ordem de serviço, ela será marcada como concluída. Informe o valor do pagamento recebido.
+        </div>
+        
+        <h6 class="mb-3">Confirme os dados da ordem de serviço:</h6>
+        
+        <div class="row mb-3">
+          <div class="col-sm-4">
+            <strong>Cliente:</strong>
+          </div>
+          <div class="col-sm-8">
+            <span data-modal-manager-target="customerName">-</span>
+          </div>
+        </div>
+        
+        <div class="row mb-3">
+          <div class="col-sm-4">
+            <strong>Veículo:</strong>
+          </div>
+          <div class="col-sm-8">
+            <span data-modal-manager-target="vehicleInfo">-</span>
+          </div>
+        </div>
+        
+        <div class="row mb-3">
+          <div class="col-sm-4">
+            <strong>Valor Total:</strong>
+          </div>
+          <div class="col-sm-8">
+            <span data-modal-manager-target="workOrderValue" class="fs-5 fw-bold text-success">-</span>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-sm-4">
+            <strong>Valor Pago:</strong>
+          </div>
+          <div class="col-sm-8">
+            <span data-modal-manager-target="paidAmount" class="text-muted">R$ 0,00</span>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-sm-4">
+            <strong>Valor Restante:</strong>
+          </div>
+          <div class="col-sm-8">
+            <span data-modal-manager-target="remainingAmount" class="text-warning">-</span>
+          </div>
+        </div>
+        
+        <hr>
+        
+        <h6 class="mb-3">Informações do pagamento:</h6>
+        
+        <div class="mb-3">
+          <label for="payment_amount" class="form-label">Valor do Pagamento</label>
+          <div class="input-group">
+            <span class="input-group-text">R$</span>
+            <input type="number" class="form-control" id="payment_amount" name="payment_amount" 
+                   step="0.01" min="0" placeholder="0,00">
+          </div>
+          <div class="form-text">Deixe em branco para pagamento integral do valor total</div>
+        </div>
+
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="checkbox" id="full_payment">
+          <label class="form-check-label" for="full_payment">
+            Pagamento integral do valor total
+          </label>
+        </div>
+        
+        <div class="row">
+          <div class="col-sm-4">
+            <strong>Data/Hora:</strong>
+          </div>
+          <div class="col-sm-8">
+            <span class="text-muted"><%= Time.current.strftime("%d/%m/%Y às %H:%M") %></span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-1"></i>
+          Cancelar
+        </button>
+        <%= form_with url: "", method: :patch, id: "finalize-work-order-form", remote: true, class: "d-inline", data: { modal_manager_target: "form" } do |form| %>
+          <input type="hidden" name="payment_amount" id="final_payment_amount">
+          <button type="submit" class="btn btn-success"
+                  data-controller="feedback"
+                  data-feedback-loading-text-value="Finalizando..."
+                  data-feedback-success-text-value="Finalizado!"
+                  data-feedback-target="element">
+            <i class="fas fa-check me-1" data-feedback-target="icon"></i>
+            <span data-feedback-target="text">Finalizar e Receber Pagamento</span>
+          </button>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div> 

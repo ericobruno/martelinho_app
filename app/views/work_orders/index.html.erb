@@ -24,4 +24,69 @@
       </div>
     </div>
   </div>
-</div> 
+</div>
+
+<!-- Modal de Finalização -->
+<%= render "work_orders/finalize_modal" %>
+
+<!-- JavaScript consolidado no controller modal-manager -->
+  
+  if (finalizeModal) {
+    finalizeModal.addEventListener('show.bs.modal', function(event) {
+      const button = event.relatedTarget;
+      const workOrderId = button.getAttribute('data-work-order-id');
+      const customerName = button.getAttribute('data-customer-name');
+      const vehicleInfo = button.getAttribute('data-vehicle-info');
+      const workOrderValue = button.getAttribute('data-work-order-value');
+      const paidAmount = button.getAttribute('data-paid-amount');
+      const remainingAmount = button.getAttribute('data-remaining-amount');
+      
+      totalCents = parseInt(button.getAttribute('data-total-cents')) || 0;
+      paidCents = parseInt(button.getAttribute('data-paid-cents')) || 0;
+      
+      // Preencher dados no modal
+      document.getElementById('modal-customer-name').textContent = customerName;
+      document.getElementById('modal-vehicle-info').textContent = vehicleInfo;
+      document.getElementById('modal-work-order-value').textContent = workOrderValue;
+      document.getElementById('modal-paid-amount').textContent = paidAmount;
+      document.getElementById('modal-remaining-amount').textContent = remainingAmount;
+      
+      // Definir valor padrão como o valor restante
+      const remainingCents = totalCents - paidCents;
+      paymentAmountInput.value = (remainingCents / 100).toFixed(2);
+      paymentAmountInput.max = (remainingCents / 100).toFixed(2);
+      
+      // Definir a URL do formulário
+      finalizeForm.action = `/work_orders/${workOrderId}/finalize`;
+    });
+    
+    // Manipular checkbox de pagamento integral
+    fullPaymentCheckbox.addEventListener('change', function() {
+      if (this.checked) {
+        const remainingCents = totalCents - paidCents;
+        paymentAmountInput.value = (remainingCents / 100).toFixed(2);
+        paymentAmountInput.disabled = true;
+      } else {
+        paymentAmountInput.disabled = false;
+        paymentAmountInput.focus();
+      }
+    });
+    
+    // Manipular submissão do formulário
+    finalizeForm.addEventListener('submit', function(event) {
+      const paymentValue = paymentAmountInput.value;
+      finalPaymentAmountInput.value = paymentValue;
+    });
+    
+    // Fechar modal após finalização bem-sucedida
+    document.addEventListener('turbo:before-stream-render', function(event) {
+      if (event.detail.newStream.querySelector('[data-turbo-action="update"]')) {
+        const modal = bootstrap.Modal.getInstance(finalizeModal);
+        if (modal) {
+          modal.hide();
+        }
+      }
+    });
+  }
+});
+</script> 

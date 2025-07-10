@@ -1,0 +1,71 @@
+<div class="d-flex flex-wrap gap-1">
+  <!-- Ver orçamento -->
+  <%= link_to quote_path(quote), class: "btn btn-sm btn-outline-info", title: "Ver orçamento" do %>
+    <i class="fas fa-eye"></i>
+    <span class="d-none d-lg-inline ms-1">Ver</span>
+  <% end %>
+  
+  <!-- Editar (apenas para orçamentos abertos) -->
+  <% if quote.aberto? %>
+    <%= link_to edit_quote_path(quote), class: "btn btn-sm btn-outline-primary", title: "Editar orçamento" do %>
+      <i class="fas fa-edit"></i>
+      <span class="d-none d-lg-inline ms-1">Editar</span>
+    <% end %>
+  <% end %>
+  
+  <!-- Aprovar (exceto já aprovados) -->
+  <% unless quote.aprovado? %>
+    <button type="button" 
+            class="btn btn-sm btn-success" 
+            title="Aprovar orçamento"
+            data-controller="feedback"
+            data-feedback-loading-text-value="Aprovando..."
+            data-feedback-success-text-value="Aprovado!"
+            data-bs-toggle="modal" 
+            data-bs-target="#approveQuoteModal"
+            data-quote-id="<%= quote.id %>"
+            data-customer-name="<%= quote.customer.name %>"
+            data-vehicle-info="<%= quote.vehicle.license_plate %> - <%= quote.vehicle.vehicle_brand.name %> <%= quote.vehicle.vehicle_model.name %>"
+            data-quote-value="<%= quote.formatted_total %>">
+      <i class="fas fa-check" data-feedback-target="icon"></i>
+      <span class="d-none d-lg-inline ms-1">Aprovar</span>
+    </button>
+  <% end %>
+  
+  <!-- Rejeitar (apenas enviados não expirados) -->
+  <% if quote.enviado? && !quote.expired? %>
+    <%= button_to reject_quote_path(quote), method: :patch, 
+        class: "btn btn-sm btn-outline-danger", 
+        title: "Rejeitar orçamento",
+        confirm: "Tem certeza que deseja rejeitar este orçamento?",
+        remote: true do %>
+      <i class="fas fa-times"></i>
+      <span class="d-none d-lg-inline ms-1">Rejeitar</span>
+    <% end %>
+  <% end %>
+  
+  <!-- Status de aprovado -->
+  <% if quote.aprovado? %>
+    <span class="badge bg-success d-flex align-items-center">
+      <i class="fas fa-check me-1"></i>
+      <span class="d-none d-sm-inline">Aprovado</span>
+      <span class="d-sm-none">✓</span>
+      <% if quote.approved_at %>
+        <small class="ms-1 d-none d-md-inline opacity-75">
+          <%= quote.approved_at.strftime("%d/%m") %>
+        </small>
+      <% end %>
+    </span>
+  <% end %>
+  
+  <!-- Excluir (apenas abertos ou enviados) -->
+  <% if quote.aberto? || quote.enviado? %>
+    <%= link_to quote_path(quote), method: :delete, 
+        confirm: "Tem certeza que deseja excluir este orçamento?", 
+        class: "btn btn-sm btn-outline-danger", 
+        title: "Excluir orçamento" do %>
+      <i class="fas fa-trash"></i>
+      <span class="d-none d-lg-inline ms-1">Excluir</span>
+    <% end %>
+  <% end %>
+</div> 

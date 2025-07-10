@@ -5,8 +5,8 @@ class DashboardController < ApplicationController
       total_vehicles: Vehicle.count,
       active_quotes: Quote.active.count,
       active_work_orders: WorkOrder.active.count,
-      pending_work_orders: WorkOrder.pending.count,
-      in_progress_work_orders: WorkOrder.in_progress.count,
+      pending_work_orders: WorkOrder.aberta.count,
+      in_progress_work_orders: WorkOrder.em_andamento.count,
       total_departments: Department.active.count,
       total_service_types: ServiceType.active.count
     }

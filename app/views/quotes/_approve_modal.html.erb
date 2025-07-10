@@ -1,0 +1,149 @@
+<!-- Modal de Confirmação de Aprovação -->
+<div class="modal fade" id="approveQuoteModal" tabindex="-1" aria-labelledby="approveQuoteModalLabel" aria-hidden="true"
+     data-controller="modal-manager mobile" 
+     data-modal-manager-type-value="quote-approval"
+     data-modal-manager-target="modal"
+     data-action="show.bs.modal->modal-manager#show">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h1 class="modal-title fs-5" id="approveQuoteModalLabel">
+          <i class="fas fa-check-circle me-2"></i>
+          Aprovar Orçamento
+        </h1>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-info d-flex align-items-start">
+          <i class="fas fa-info-circle me-2 mt-1"></i>
+          <div>
+            <strong>Atenção:</strong> Ao aprovar este orçamento, uma ordem de serviço será automaticamente criada com status "aberta".
+          </div>
+        </div>
+        
+        <h6 class="mb-3 fw-bold">Confirme os dados do orçamento:</h6>
+        
+        <!-- Informações do orçamento em layout responsivo -->
+        <div class="container-fluid p-0">
+          <div class="row g-3">
+            <div class="col-12 col-sm-6">
+              <div class="d-flex flex-column">
+                <strong class="text-muted small mb-1">Cliente:</strong>
+                <span data-modal-manager-target="customerName" class="fw-semibold">-</span>
+              </div>
+            </div>
+            
+            <div class="col-12 col-sm-6">
+              <div class="d-flex flex-column">
+                <strong class="text-muted small mb-1">Veículo:</strong>
+                <span data-modal-manager-target="vehicleInfo" class="fw-semibold">-</span>
+              </div>
+            </div>
+            
+            <div class="col-12 col-sm-6">
+              <div class="d-flex flex-column">
+                <strong class="text-muted small mb-1">Valor:</strong>
+                <span data-modal-manager-target="value" class="fs-4 fw-bold text-success">-</span>
+              </div>
+            </div>
+            
+            <div class="col-12 col-sm-6">
+              <div class="d-flex flex-column">
+                <strong class="text-muted small mb-1">Data/Hora:</strong>
+                <span class="text-muted"><%= Time.current.strftime("%d/%m/%Y às %H:%M") %></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="d-flex flex-column flex-sm-row gap-2 w-100">
+          <button type="button" class="btn btn-secondary order-2 order-sm-1" data-bs-dismiss="modal">
+            <i class="fas fa-times me-2"></i>
+            Cancelar
+          </button>
+          <form id="approve-quote-form" method="post" action="#" 
+                class="order-1 order-sm-2 flex-fill"
+                data-modal-manager-target="form" 
+                data-turbo="true">
+            <input type="hidden" name="_method" value="patch">
+            <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+            <button type="submit" class="btn btn-success w-100"
+                    data-controller="feedback"
+                    data-feedback-loading-text-value="Aprovando..."
+                    data-feedback-success-text-value="Aprovado!"
+                    data-feedback-target="element">
+              <i class="fas fa-check me-2" data-feedback-target="icon"></i>
+              <span data-feedback-target="text">Confirmar Aprovação</span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const modal = document.getElementById('approveQuoteModal');
+  const form = document.getElementById('approve-quote-form');
+  
+  console.log('🎭 Modal script loaded');
+  
+  // Fallback se o Stimulus não funcionar
+  modal.addEventListener('show.bs.modal', function(event) {
+    console.log('🎭 Modal show event triggered');
+    
+    const button = event.relatedTarget;
+    if (!button) {
+      console.error('🎭 No button found');
+      return;
+    }
+    
+    console.log('🎭 Button found:', button);
+    
+    const quoteId = button.getAttribute('data-quote-id');
+    const customerName = button.getAttribute('data-customer-name');
+    const vehicleInfo = button.getAttribute('data-vehicle-info');
+    const quoteValue = button.getAttribute('data-quote-value');
+    
+    console.log('🎭 Data from button:', { quoteId, customerName, vehicleInfo, quoteValue });
+    
+    // Preencher dados do modal
+    const customerNameSpan = modal.querySelector('[data-modal-manager-target="customerName"]');
+    const vehicleInfoSpan = modal.querySelector('[data-modal-manager-target="vehicleInfo"]');
+    const valueSpan = modal.querySelector('[data-modal-manager-target="value"]');
+    
+    if (customerNameSpan && customerName) {
+      customerNameSpan.textContent = customerName;
+      console.log('🎭 Set customer name:', customerName);
+    }
+    
+    if (vehicleInfoSpan && vehicleInfo) {
+      vehicleInfoSpan.textContent = vehicleInfo;
+      console.log('🎭 Set vehicle info:', vehicleInfo);
+    }
+    
+    if (valueSpan && quoteValue) {
+      valueSpan.textContent = quoteValue;
+      console.log('🎭 Set value:', quoteValue);
+    }
+    
+    // Configurar action do formulário
+    if (form && quoteId) {
+      const newAction = `/quotes/${quoteId}/approve`;
+      form.action = newAction;
+      console.log('🎭 ✅ Form action set to:', newAction);
+    } else {
+      console.error('🎭 ❌ Form or quote ID not found');
+    }
+  });
+  
+  // Debug para verificar se o formulário está sendo submetido
+  form.addEventListener('submit', function(event) {
+    console.log('🎭 Form submitted to:', form.action);
+    console.log('🎭 Form method:', form.method);
+    console.log('🎭 Form data:', new FormData(form));
+  });
+});
+</script> 
