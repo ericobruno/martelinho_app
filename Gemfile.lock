@@ -246,7 +246,7 @@ GEM
       ast (~> 2.4.1)
       racc
     pg (1.5.9)
-    phonelib (0.10.10)
+    phonelib (0.10.11)
     pp (0.6.2)
       prettyprint
     prettyprint (0.2.0)
@@ -456,7 +456,7 @@ DEPENDENCIES
   kaminari (~> 1.2)
   money-rails (~> 1.12)
   pg (~> 1.1)
-  phonelib (~> 0.8)
+  phonelib (~> 0.10)
   propshaft
   puma (>= 5.0)
   pundit (~> 2.3)
