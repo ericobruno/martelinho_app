@@ -52,7 +52,7 @@ gem "cpf_cnpj", "~> 0.5"
 gem "money-rails", "~> 1.12"
 
 # Phone number formatting
-gem "phonelib", "~> 0.8"
+gem "phonelib", "~> 0.10"
 
 # Simple form for better forms
 gem "simple_form", "~> 5.1"
