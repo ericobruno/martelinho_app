@@ -46,7 +46,7 @@ gem "image_processing", "~> 1.2"
 gem "rqrcode", "~> 2.0"
 
 # CPF/CNPJ validation
-gem "cpf_cnpj", "~> 0.5"
+gem "cpf_cnpj", "~> 1.0"
 
 # Money formatting and currency
 gem "money-rails", "~> 1.12"
